@@ -1,4 +1,5 @@
 package com.syed.intellidocs.enums;
 
-public class UserStatus {
+public enum UserStatus {
+    ACTIVE, SUSPENDED
 }
