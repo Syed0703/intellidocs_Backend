@@ -39,4 +39,10 @@ public class Membership {
 
     @CreatedDate
     private LocalDateTime joinedAt;
+
+    public Membership(MembershipRole role, User user, Organization organization) {
+        this.role = role;
+        this.user = user;
+        this.organization = organization;
+    }
 }
