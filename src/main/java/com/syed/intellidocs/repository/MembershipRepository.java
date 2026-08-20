@@ -8,5 +8,9 @@ import java.util.Optional;
 
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
-    Optional<Membership> findByUserUserIdAndOrganizationOrganizationId(Long userId, Long organizationId);
+
+    boolean existsByUserUserIdAndOrganizationOrganizationId(
+            Long userId,
+            Long organizationId
+    );
 }
