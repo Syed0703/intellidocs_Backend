@@ -13,7 +13,6 @@ import com.syed.intellidocs.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class MembershipService {
 
     private final UserRepository userRepository;
