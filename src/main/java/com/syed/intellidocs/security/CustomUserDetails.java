@@ -15,6 +15,10 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
+    public Long getUserId() {
+        return user.getUserId();
+    }
+
     @Override
     public String getUsername() {
         return user.getEmail();
@@ -33,5 +37,20 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.getStatus() == UserStatus.ACTIVE;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 }
