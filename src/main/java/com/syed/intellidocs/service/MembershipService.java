@@ -1,5 +1,6 @@
 package com.syed.intellidocs.service;
 
+import com.syed.intellidocs.dto.response.MembershipResponse;
 import com.syed.intellidocs.entity.Membership;
 import com.syed.intellidocs.entity.Organization;
 import com.syed.intellidocs.entity.User;
@@ -28,7 +29,7 @@ public class MembershipService {
 
     }
 
-    public Membership createMembership(Long userId, Long organizationId, MembershipRole role) {
+    public MembershipResponse createMembership(Long userId, Long organizationId, MembershipRole role) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException());
 
@@ -43,8 +44,18 @@ public class MembershipService {
         }
 
         Membership membership = new Membership(role, user, organization);
-        membershipRepository.save(membership);
-        return membership;
+        Membership savedMembership = membershipRepository.save(membership);
+
+        MembershipResponse response = new MembershipResponse();
+        response.setMembershipId(savedMembership.getMembershipId());
+        response.setRole(savedMembership.getRole());
+        response.setUserId(savedMembership.getUser().getUserId());
+        response.setUserName(savedMembership.getUser().getName());
+        response.setUserEmail(savedMembership.getUser().getEmail());
+        response.setOrganizationId(savedMembership.getOrganization().getOrganizationId());
+        response.setOrganizationName(savedMembership.getOrganization().getOrganizationName());
+        response.setJoinedAt(savedMembership.getJoinedAt());
+        return response;
     }
 
 }
