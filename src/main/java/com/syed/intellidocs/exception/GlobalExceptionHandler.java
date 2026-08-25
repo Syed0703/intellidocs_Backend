@@ -1,6 +1,7 @@
 package com.syed.intellidocs.exception;
 import com.syed.intellidocs.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -54,4 +55,14 @@ public class GlobalExceptionHandler {
         response.setErrors(errors);
         return response;
     }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleBadCredentials(BadCredentialsException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(401);
+        response.setMessage("Invalid email or password");
+        return response;
+    }
+
 }
