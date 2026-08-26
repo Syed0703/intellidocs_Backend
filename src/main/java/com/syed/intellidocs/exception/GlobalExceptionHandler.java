@@ -7,7 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
+import org.springframework.security.access.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +62,24 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(401);
         response.setMessage("Invalid email or password");
+        return response;
+    }
+
+    @ExceptionHandler(KnowledgeBaseAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleKnowledgeBaseAlreadyExistsException(KnowledgeBaseAlreadyExistsException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(409);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(403);
+        response.setMessage(ex.getMessage());
         return response;
     }
 
