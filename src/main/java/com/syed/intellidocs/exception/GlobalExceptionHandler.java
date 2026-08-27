@@ -83,4 +83,31 @@ public class GlobalExceptionHandler {
         return response;
     }
 
+    @ExceptionHandler(KnowledgeBaseNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleKnowledgeBaseNotFoundException(KnowledgeBaseNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(404);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
+
+
+    @ExceptionHandler(InvalidDocumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidDocumentException(InvalidDocumentException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(400);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
+
+    @ExceptionHandler(DocumentAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDocumentAlreadyExistsException(DocumentAlreadyExistsException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(409);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
 }
