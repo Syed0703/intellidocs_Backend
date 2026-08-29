@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MembershipAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleMembershipAlreadyExist(MembershipAlreadyExistsException ex) {
+    public ErrorResponse handleMembershipAlreadyExistsException(MembershipAlreadyExistsException ex) {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(409);
         response.setMessage(ex.getMessage());
@@ -108,6 +108,33 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(409);
         response.setMessage(ex.getMessage());
+        return response;
+    }
+
+    @ExceptionHandler(PdfProcessingException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handlePdfProcessingException(PdfProcessingException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(422);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleFileStorageException(FileStorageException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(500);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGeneralException(Exception ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(500);
+        response.setMessage("An unexpected error occurred");
         return response;
     }
 }
