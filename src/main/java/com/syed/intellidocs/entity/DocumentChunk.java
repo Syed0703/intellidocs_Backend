@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Array;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
@@ -40,7 +41,8 @@ public class DocumentChunk {
     private String content;
 
     @JdbcTypeCode(SqlTypes.VECTOR)
-    @Column(columnDefinition = "vector(768")
+    @Array(length = 768)
+    @Column(name = "embedding")
     private float[] embedding;
 
     @CreatedDate
