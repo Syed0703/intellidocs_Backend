@@ -132,6 +132,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneralException(Exception ex) {
+        ex.printStackTrace();
         ErrorResponse response = new ErrorResponse();
         response.setStatus(500);
         response.setMessage("An unexpected error occurred");

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -36,6 +38,10 @@ public class DocumentChunk {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Column(columnDefinition = "vector(768")
+    private float[] embedding;
 
     @CreatedDate
     private LocalDateTime createdAt;
