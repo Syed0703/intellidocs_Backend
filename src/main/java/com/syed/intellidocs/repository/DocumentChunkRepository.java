@@ -25,6 +25,7 @@ public interface DocumentChunkRepository extends JpaRepository<DocumentChunk, Lo
         JOIN knowledge_base kb
             ON d.knowledge_base_id = kb.knowledge_base_id
         WHERE kb.organization_id = :organizationId
+          AND d.status = 'READY'
           AND dc.embedding IS NOT NULL
           AND (dc.embedding <=> CAST(:queryEmbedding AS vector)) <= :maxDistance
         ORDER BY distance

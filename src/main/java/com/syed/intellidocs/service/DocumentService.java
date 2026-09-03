@@ -88,26 +88,37 @@ public class DocumentService {
         document.setKnowledgeBase(knowledgeBase);
 
         Document savedDocument = documentRepository.save(document);
+        savedDocument.setStatus(DocumentStatus.PROCESSING);
+        documentRepository.save(savedDocument);
 
-        Path pdfPath = fileStorageService.getPath(savedDocument.getStorageKey());
-        String extractedText = pdfTextExtractorService.extractText(pdfPath);
+        try{
+            Path pdfPath = fileStorageService.getPath(savedDocument.getStorageKey());
+            String extractedText = pdfTextExtractorService.extractText(pdfPath);
 
-        List<String> chunks = documentChunkService.chunk(extractedText);
+            List<String> chunks = documentChunkService.chunk(extractedText);
 
-        for(int i = 0; i < chunks.size(); i++) {
+            for(int i = 0; i < chunks.size(); i++) {
 
-            String chunkText  = chunks.get(i);
+                String chunkText  = chunks.get(i);
 
-            float[] embeddings = embeddingModel.embed(chunkText);
+                float[] embeddings = embeddingModel.embed(chunkText);
 
-            DocumentChunk documentChunk = new DocumentChunk();
+                DocumentChunk documentChunk = new DocumentChunk();
 
-            documentChunk.setDocument(savedDocument);
-            documentChunk.setChunkIndex(i);
-            documentChunk.setContent(chunks.get(i));
-            documentChunk.setEmbedding(embeddings);
+                documentChunk.setDocument(savedDocument);
+                documentChunk.setChunkIndex(i);
+                documentChunk.setContent(chunkText);
+                documentChunk.setEmbedding(embeddings);
 
-            documentChunkRepository.save(documentChunk);
+                documentChunkRepository.save(documentChunk);
+            }
+            savedDocument.setStatus(DocumentStatus.READY);
+            documentRepository.save(savedDocument);
+
+        } catch (RuntimeException ex) {
+            savedDocument.setStatus(DocumentStatus.FAILED);
+            documentRepository.save(savedDocument);
+            throw ex;
         }
 
         return getDocumentResponse(savedDocument);
