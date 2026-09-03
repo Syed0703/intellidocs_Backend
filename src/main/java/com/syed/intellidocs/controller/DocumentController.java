@@ -28,4 +28,17 @@ public class DocumentController {
                 file
         );
     }
+
+    @GetMapping("/{documentId}")
+    public DocumentResponse getDocument(
+            @PathVariable Long organizationId,
+            @PathVariable Long knowledgeBaseId,
+            @PathVariable Long documentId
+    ) {
+        return documentService.getDocument(
+                organizationId,
+                knowledgeBaseId,
+                documentId
+        );
+    }
 }

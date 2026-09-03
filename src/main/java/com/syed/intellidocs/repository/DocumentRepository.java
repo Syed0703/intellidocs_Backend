@@ -4,10 +4,19 @@ import com.syed.intellidocs.entity.Document;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
     boolean existsByOriginalFileNameAndKnowledgeBaseKnowledgeBaseId(
             String originalFileName,
             Long KnowledgeBaseId
+    );
+
+    Optional<Document>
+    findByDocumentIdAndKnowledgeBaseKnowledgeBaseIdAndKnowledgeBaseOrganizationOrganizationId(
+            Long documentId,
+            Long knowledgeBaseId,
+            Long organizationId
     );
 }

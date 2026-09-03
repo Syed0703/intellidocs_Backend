@@ -138,4 +138,13 @@ public class GlobalExceptionHandler {
         response.setMessage("An unexpected error occurred");
         return response;
     }
+
+    @ExceptionHandler(DocumentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDocumentNotFoundException(DocumentNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(404);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
 }

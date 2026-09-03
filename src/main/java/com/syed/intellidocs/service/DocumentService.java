@@ -4,6 +4,7 @@ import com.syed.intellidocs.entity.Document;
 import com.syed.intellidocs.entity.KnowledgeBase;
 import com.syed.intellidocs.enums.DocumentStatus;
 import com.syed.intellidocs.exception.DocumentAlreadyExistsException;
+import com.syed.intellidocs.exception.DocumentNotFoundException;
 import com.syed.intellidocs.exception.InvalidDocumentException;
 import com.syed.intellidocs.exception.KnowledgeBaseNotFoundException;
 import com.syed.intellidocs.repository.DocumentRepository;
@@ -77,6 +78,26 @@ public class DocumentService {
         documentProcessingService.processDocument(savedDocument.getDocumentId());
 
         return getDocumentResponse(savedDocument);
+    }
+
+    public DocumentResponse getDocument(
+            Long organizationId,
+            Long knowledgeBaseId,
+            Long documentId
+    ) {
+        organizationAccessService.getMembership(organizationId);
+
+        Document document = documentRepository
+                .findByDocumentIdAndKnowledgeBaseKnowledgeBaseIdAndKnowledgeBaseOrganizationOrganizationId(
+                        documentId,
+                        knowledgeBaseId,
+                        organizationId
+                )
+                .orElseThrow(() ->
+                        new DocumentNotFoundException()
+                );
+
+        return getDocumentResponse(document);
     }
 
     private static DocumentResponse getDocumentResponse(Document savedDocument) {
