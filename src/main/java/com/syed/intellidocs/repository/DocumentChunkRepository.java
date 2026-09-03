@@ -39,4 +39,6 @@ public interface DocumentChunkRepository extends JpaRepository<DocumentChunk, Lo
             @Param("maxDistance") double maxDistance,
             @Param("limit") int limit
     );
+
+    void deleteByDocumentDocumentId(Long documentId);
 }

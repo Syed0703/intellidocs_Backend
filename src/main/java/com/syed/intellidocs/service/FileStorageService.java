@@ -43,6 +43,19 @@ public class FileStorageService {
         }
     }
 
+    public void delete(String storageKey) {
+        Path filePath = uploadRoot.resolve(storageKey);
+
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException ex) {
+            throw new FileStorageException(
+                    "Failed to delete stored document",
+                    ex
+            );
+        }
+    }
+
     public Path getPath(String storageKey) {
         return uploadRoot.resolve(storageKey);
     }

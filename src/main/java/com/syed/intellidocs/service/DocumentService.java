@@ -7,9 +7,11 @@ import com.syed.intellidocs.exception.DocumentAlreadyExistsException;
 import com.syed.intellidocs.exception.DocumentNotFoundException;
 import com.syed.intellidocs.exception.InvalidDocumentException;
 import com.syed.intellidocs.exception.KnowledgeBaseNotFoundException;
+import com.syed.intellidocs.repository.DocumentChunkRepository;
 import com.syed.intellidocs.repository.DocumentRepository;
 import com.syed.intellidocs.repository.KnowledgeBaseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -23,19 +25,22 @@ public class DocumentService {
     private final OrganizationAccessService organizationAccessService;
     private final FileStorageService fileStorageService;
     private final DocumentProcessingService documentProcessingService;
+    private DocumentChunkRepository documentChunkRepository;
 
     public DocumentService(
             DocumentRepository documentRepository,
             KnowledgeBaseRepository knowledgeBaseRepository,
             OrganizationAccessService organizationAccessService,
             FileStorageService fileStorageService,
-            DocumentProcessingService documentProcessingService
+            DocumentProcessingService documentProcessingService,
+            DocumentChunkRepository documentChunkRepository
     ) {
         this.documentRepository = documentRepository;
         this.knowledgeBaseRepository = knowledgeBaseRepository;
         this.organizationAccessService = organizationAccessService;
         this.fileStorageService = fileStorageService;
         this.documentProcessingService = documentProcessingService;
+        this.documentChunkRepository = documentChunkRepository;
     }
 
     public DocumentResponse uploadDocument(
@@ -122,6 +127,29 @@ public class DocumentService {
         }
 
         return responses;
+    }
+
+
+    @Transactional
+    public void deleteDocument(
+            Long organizationId,
+            Long knowledgeBaseId,
+            Long documentId
+    ) {
+        organizationAccessService.requireAdmin(organizationId);
+
+        Document document = documentRepository
+                .findByDocumentIdAndKnowledgeBaseKnowledgeBaseIdAndKnowledgeBaseOrganizationOrganizationId(
+                        documentId,
+                        knowledgeBaseId,
+                        organizationId
+                ).orElseThrow(() -> new DocumentNotFoundException());
+
+        documentChunkRepository.deleteByDocumentDocumentId(documentId);
+
+        documentRepository.delete(document);
+
+        fileStorageService.delete(document.getStorageKey());
     }
 
     private static DocumentResponse getDocumentResponse(Document savedDocument) {

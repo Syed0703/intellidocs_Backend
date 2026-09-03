@@ -55,4 +55,18 @@ public class DocumentController {
                 knowledgeBaseId
         );
     }
+
+    @DeleteMapping("/{documentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDocument(
+            @PathVariable Long organizationId,
+            @PathVariable Long knowledgeBaseId,
+            @PathVariable Long documentId
+    ) {
+        documentService.deleteDocument(
+                organizationId,
+                knowledgeBaseId,
+                documentId
+        );
+    }
 }
