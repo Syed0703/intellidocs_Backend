@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/organizations/{organizationId}/knowledge-bases/{knowledgeBaseId}/documents")
 public class DocumentController {
@@ -39,6 +41,18 @@ public class DocumentController {
                 organizationId,
                 knowledgeBaseId,
                 documentId
+        );
+    }
+
+
+    @GetMapping
+    public List<DocumentResponse> getDocuments(
+            @PathVariable Long organizationId,
+            @PathVariable Long knowledgeBaseId
+    ) {
+        return documentService.getDocuments(
+                organizationId,
+                knowledgeBaseId
         );
     }
 }

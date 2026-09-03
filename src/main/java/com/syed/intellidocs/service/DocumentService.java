@@ -12,6 +12,9 @@ import com.syed.intellidocs.repository.KnowledgeBaseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 public class DocumentService {
@@ -98,6 +101,27 @@ public class DocumentService {
                 );
 
         return getDocumentResponse(document);
+    }
+
+    public List<DocumentResponse> getDocuments(
+            Long organizationId,
+            Long knowledgeBaseId
+    ) {
+        organizationAccessService.getMembership(organizationId);
+
+        List<Document> documents = documentRepository
+                .findByKnowledgeBaseKnowledgeBaseIdAndKnowledgeBaseOrganizationOrganizationId(
+                        knowledgeBaseId,
+                        organizationId
+                );
+
+        List<DocumentResponse> responses = new ArrayList<>();
+
+        for (Document document : documents) {
+            responses.add(getDocumentResponse(document));
+        }
+
+        return responses;
     }
 
     private static DocumentResponse getDocumentResponse(Document savedDocument) {
