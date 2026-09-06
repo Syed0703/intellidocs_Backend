@@ -1,5 +1,7 @@
 package com.syed.intellidocs.exception;
 import com.syed.intellidocs.dto.response.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
@@ -8,11 +10,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -132,7 +139,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneralException(Exception ex) {
-        ex.printStackTrace();
+
+        log.error("Unexpected application error", ex);
+
         ErrorResponse response = new ErrorResponse();
         response.setStatus(500);
         response.setMessage("An unexpected error occurred");
@@ -166,6 +175,16 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(409);
         response.setMessage(ex.getMessage());
+
+        return response;
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoResourceFound(NoResourceFoundException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(404);
+        response.setMessage("Resource not found");
 
         return response;
     }

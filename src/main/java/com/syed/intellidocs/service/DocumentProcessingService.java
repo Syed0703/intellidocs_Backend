@@ -5,6 +5,8 @@ import com.syed.intellidocs.entity.DocumentChunk;
 import com.syed.intellidocs.enums.DocumentStatus;
 import com.syed.intellidocs.repository.DocumentChunkRepository;
 import com.syed.intellidocs.repository.DocumentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -37,9 +39,24 @@ public class DocumentProcessingService {
         this.embeddingModel = embeddingModel;
     }
 
+    private static final Logger log =
+            LoggerFactory.getLogger(DocumentProcessingService.class);
+
     @Async
     public void processDocument(Long documentId) {
-        Document document = documentRepository.findById(documentId).orElseThrow();
+
+        Document document = documentRepository
+                .findById(documentId)
+                .orElse(null);
+
+        if (document == null) {
+            log.error(
+                    "Cannot process document with id {} because it no longer exists",
+                    documentId
+            );
+            return;
+        }
+
         try {
             Path pdfPath =
                     fileStorageService.getPath(document.getStorageKey());
@@ -75,6 +92,12 @@ public class DocumentProcessingService {
 
             document.setStatus(DocumentStatus.FAILED);
             documentRepository.save(document);
+
+            log.error(
+                    "Failed to process document with id {}",
+                    documentId,
+                    ex
+            );
         }
     }
 }
