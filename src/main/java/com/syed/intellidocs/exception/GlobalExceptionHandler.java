@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
@@ -195,6 +196,16 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(409);
         response.setMessage(ex.getMessage());
+
+        return response;
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public ErrorResponse handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(413);
+        response.setMessage("File size exceeds the 10 MB limit");
 
         return response;
     }
