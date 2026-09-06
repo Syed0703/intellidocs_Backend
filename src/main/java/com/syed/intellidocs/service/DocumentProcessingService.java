@@ -3,6 +3,7 @@ package com.syed.intellidocs.service;
 import com.syed.intellidocs.entity.Document;
 import com.syed.intellidocs.entity.DocumentChunk;
 import com.syed.intellidocs.enums.DocumentStatus;
+import com.syed.intellidocs.exception.PdfProcessingException;
 import com.syed.intellidocs.repository.DocumentChunkRepository;
 import com.syed.intellidocs.repository.DocumentRepository;
 import org.slf4j.Logger;
@@ -63,6 +64,10 @@ public class DocumentProcessingService {
 
             String extractedText =
                     pdfTextExtractorService.extractText(pdfPath);
+
+            if(extractedText == null || extractedText.isBlank()) {
+                throw new PdfProcessingException("No Extractable text found in pdf");
+            }
 
             List<String> chunks =
                     documentChunkService.chunk(extractedText);
