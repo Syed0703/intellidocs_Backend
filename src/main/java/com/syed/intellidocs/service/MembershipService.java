@@ -19,17 +19,27 @@ public class MembershipService {
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
     private final MembershipRepository membershipRepository;
+    private final OrganizationAccessService organizationAccessService;
 
-    public MembershipService(UserRepository userRepository,
-                             OrganizationRepository organizationRepository,
-                             MembershipRepository membershipRepository) {
+    public MembershipService(
+            UserRepository userRepository,
+            OrganizationRepository organizationRepository,
+            MembershipRepository membershipRepository,
+            OrganizationAccessService organizationAccessService
+    ) {
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
         this.membershipRepository = membershipRepository;
-
+        this.organizationAccessService = organizationAccessService;
     }
 
-    public MembershipResponse createMembership(Long userId, Long organizationId, MembershipRole role) {
+    public MembershipResponse createMembership(
+            Long userId,
+            Long organizationId,
+            MembershipRole role
+    ) {
+        organizationAccessService.requireAdmin(organizationId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException());
 
