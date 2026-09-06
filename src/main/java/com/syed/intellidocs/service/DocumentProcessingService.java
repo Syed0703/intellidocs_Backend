@@ -43,7 +43,7 @@ public class DocumentProcessingService {
     private static final Logger log =
             LoggerFactory.getLogger(DocumentProcessingService.class);
 
-    @Async
+    @Async("documentTaskExecutor")
     public void processDocument(Long documentId) {
 
         Document document = documentRepository
