@@ -1,7 +1,9 @@
 package com.syed.intellidocs.controller;
 import com.syed.intellidocs.dto.request.CreateMembershipRequest;
+import com.syed.intellidocs.dto.request.UpdateMembershipRoleRequest;
 import com.syed.intellidocs.dto.response.MembershipResponse;
 import com.syed.intellidocs.service.MembershipService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +43,19 @@ public class MembershipController {
         membershipService.deleteMembership(
                 organizationId,
                 membershipId
+        );
+    }
+
+    @PatchMapping("/organization/{organizationId}/{membershipId}/role")
+    public MembershipResponse updateMembershipRole(
+            @PathVariable Long organizationId,
+            @PathVariable Long membershipId,
+            @Valid @RequestBody UpdateMembershipRoleRequest request
+    ) {
+        return membershipService.updateMembershipRole(
+                organizationId,
+                membershipId,
+                request.getRole()
         );
     }
 }

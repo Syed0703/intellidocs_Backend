@@ -133,4 +133,52 @@ public class MembershipService {
         membershipRepository.delete(membership);
     }
 
+
+    public MembershipResponse updateMembershipRole(
+            Long organizationId,
+            Long membershipId,
+            MembershipRole newRole
+    ) {
+        organizationAccessService.requireAdmin(organizationId);
+
+        Membership membership = membershipRepository
+                .findByMembershipIdAndOrganizationOrganizationId(
+                        membershipId,
+                        organizationId
+                ).orElseThrow(() -> new MembershipNotFoundException());
+
+        if(membership.getRole() == MembershipRole.ADMIN && newRole == MembershipRole.MEMBER) {
+            long adminCount = membershipRepository
+                    .countByOrganizationOrganizationIdAndRole(
+                            organizationId,
+                            MembershipRole.ADMIN
+                    );
+
+            if(adminCount <= 1) {
+                throw new LastAdminRemovalException();
+            }
+        }
+
+        membership.setRole(newRole);
+
+        Membership savedMembership = membershipRepository.save(membership);
+
+        MembershipResponse response = new MembershipResponse();
+        response.setMembershipId(savedMembership.getMembershipId());
+        response.setRole(savedMembership.getRole());
+        response.setUserId(savedMembership.getUser().getUserId());
+        response.setUserName(savedMembership.getUser().getName());
+        response.setUserEmail(savedMembership.getUser().getEmail());
+        response.setOrganizationId(
+                savedMembership.getOrganization().getOrganizationId()
+        );
+        response.setOrganizationName(
+                savedMembership.getOrganization().getOrganizationName()
+        );
+        response.setJoinedAt(savedMembership.getJoinedAt());
+
+        return response;
+
+    }
+
 }
