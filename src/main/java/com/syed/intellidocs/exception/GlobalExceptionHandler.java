@@ -147,4 +147,26 @@ public class GlobalExceptionHandler {
         response.setMessage(ex.getMessage());
         return response;
     }
+
+    @ExceptionHandler(MembershipNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleMembershipNotFoundException(MembershipNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(404);
+        response.setMessage(ex.getMessage());
+
+        return response;
+    }
+
+    @ExceptionHandler(LastAdminRemovalException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleLastAdminRemovalException(
+            LastAdminRemovalException ex
+    ) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(409);
+        response.setMessage(ex.getMessage());
+
+        return response;
+    }
 }

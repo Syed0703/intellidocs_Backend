@@ -1,6 +1,7 @@
 package com.syed.intellidocs.repository;
 
 import com.syed.intellidocs.entity.Membership;
+import com.syed.intellidocs.enums.MembershipRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +22,14 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     );
 
     List<Membership> findByOrganizationOrganizationId(Long organizationId);
+
+    Optional<Membership> findByMembershipIdAndOrganizationOrganizationId(
+            Long membershipId,
+            Long organizationId
+    );
+
+    long countByOrganizationOrganizationIdAndRole(
+            Long organizationId,
+            MembershipRole role
+    );
 }

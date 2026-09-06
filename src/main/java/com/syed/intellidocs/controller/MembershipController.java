@@ -31,4 +31,16 @@ public class MembershipController {
     public List<MembershipResponse> getMemberships(@PathVariable Long organizationId) {
         return membershipService.getMemberships(organizationId);
     }
+
+    @DeleteMapping("/organization/{organizationId}/{membershipId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMembership(
+            @PathVariable Long organizationId,
+            @PathVariable Long membershipId
+    ) {
+        membershipService.deleteMembership(
+                organizationId,
+                membershipId
+        );
+    }
 }
