@@ -188,4 +188,14 @@ public class GlobalExceptionHandler {
 
         return response;
     }
+
+    @ExceptionHandler(DocumentProcessingInProgressException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDocumentProcessingInProgress(DocumentProcessingInProgressException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(409);
+        response.setMessage(ex.getMessage());
+
+        return response;
+    }
 }

@@ -3,10 +3,7 @@ import com.syed.intellidocs.dto.response.DocumentResponse;
 import com.syed.intellidocs.entity.Document;
 import com.syed.intellidocs.entity.KnowledgeBase;
 import com.syed.intellidocs.enums.DocumentStatus;
-import com.syed.intellidocs.exception.DocumentAlreadyExistsException;
-import com.syed.intellidocs.exception.DocumentNotFoundException;
-import com.syed.intellidocs.exception.InvalidDocumentException;
-import com.syed.intellidocs.exception.KnowledgeBaseNotFoundException;
+import com.syed.intellidocs.exception.*;
 import com.syed.intellidocs.repository.DocumentChunkRepository;
 import com.syed.intellidocs.repository.DocumentRepository;
 import com.syed.intellidocs.repository.KnowledgeBaseRepository;
@@ -144,6 +141,10 @@ public class DocumentService {
                         knowledgeBaseId,
                         organizationId
                 ).orElseThrow(() -> new DocumentNotFoundException());
+
+        if(document.getStatus() == DocumentStatus.PROCESSING) {
+            throw new DocumentProcessingInProgressException();
+        }
 
         documentChunkRepository.deleteByDocumentDocumentId(documentId);
 
