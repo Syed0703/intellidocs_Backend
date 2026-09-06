@@ -95,6 +95,9 @@ public class DocumentProcessingService {
 
         } catch (RuntimeException ex) {
 
+            documentChunkRepository
+                    .deleteByDocumentDocumentId(documentId);
+
             document.setStatus(DocumentStatus.FAILED);
             documentRepository.save(document);
 
