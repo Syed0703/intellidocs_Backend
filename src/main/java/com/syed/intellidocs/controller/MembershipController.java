@@ -5,6 +5,8 @@ import com.syed.intellidocs.service.MembershipService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/memberships")
 public class MembershipController {
@@ -23,5 +25,10 @@ public class MembershipController {
                 request.getOrganizationId(),
                 request.getRole()
         );
+    }
+
+    @GetMapping("/organization/{organizationId}")
+    public List<MembershipResponse> getMemberships(@PathVariable Long organizationId) {
+        return membershipService.getMemberships(organizationId);
     }
 }
