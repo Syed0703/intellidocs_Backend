@@ -21,7 +21,7 @@ public class MembershipController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MembershipResponse createMembership(@RequestBody CreateMembershipRequest request) {
+    public MembershipResponse createMembership(@Valid @RequestBody CreateMembershipRequest request) {
         return membershipService.createMembership(
                 request.getUserId(),
                 request.getOrganizationId(),
