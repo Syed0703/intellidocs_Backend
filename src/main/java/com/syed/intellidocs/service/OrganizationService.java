@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class OrganizationService {
 
@@ -67,5 +70,44 @@ public class OrganizationService {
         response.setStatus(savedOrganization.getStatus());
 
         return response;
+    }
+
+    public List<OrganizationResponse> getOrganizations() {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        Long userId = userDetails.getUserId();
+
+        List<Membership> memberships =
+                membershipRepository.findByUserUserId(userId);
+
+        List<OrganizationResponse> responses = new ArrayList<>();
+
+        for (Membership membership : memberships) {
+
+            Organization organization = membership.getOrganization();
+
+            OrganizationResponse response = new OrganizationResponse();
+
+            response.setOrganizationId(
+                    organization.getOrganizationId()
+            );
+
+            response.setOrganizationName(
+                    organization.getOrganizationName()
+            );
+
+            response.setStatus(
+                    organization.getStatus()
+            );
+
+            responses.add(response);
+        }
+
+        return responses;
     }
 }

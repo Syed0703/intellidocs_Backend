@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/organizations")
 public class OrganizationController {
@@ -21,5 +23,10 @@ public class OrganizationController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrganizationResponse createOrganization(@Valid @RequestBody CreateOrganizationRequest request) {
         return organizationService.createOrganization(request);
+    }
+
+    @GetMapping
+    public List<OrganizationResponse> getOrganizations() {
+        return organizationService.getOrganizations();
     }
 }
