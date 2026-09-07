@@ -209,4 +209,14 @@ public class GlobalExceptionHandler {
 
         return response;
     }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public ErrorResponse handleRateLimitExceededException(RateLimitExceededException ex) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(429);
+        response.setMessage(ex.getMessage());
+
+        return response;
+    }
 }
