@@ -68,6 +68,7 @@ public class OrganizationService {
         response.setOrganizationId(savedOrganization.getOrganizationId());
         response.setOrganizationName(savedOrganization.getOrganizationName());
         response.setStatus(savedOrganization.getStatus());
+        response.setRole(MembershipRole.ADMIN);
 
         return response;
     }
@@ -104,6 +105,8 @@ public class OrganizationService {
             response.setStatus(
                     organization.getStatus()
             );
+
+            response.setRole(membership.getRole());
 
             responses.add(response);
         }
