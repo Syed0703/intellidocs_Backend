@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +59,12 @@ public class DocumentService {
 
         if(!"application/pdf".equals(file.getContentType())) {
             throw new InvalidDocumentException("Only PDF documents are supported");
+        }
+
+        if (!hasValidPdfSignature(file)) {
+            throw new InvalidDocumentException(
+                    "Uploaded file is not a valid PDF"
+            );
         }
 
         String originalFileName = file.getOriginalFilename();
@@ -163,6 +172,28 @@ public class DocumentService {
         response.setKnowledgeBaseId(savedDocument.getKnowledgeBase().getKnowledgeBaseId());
         response.setCreatedAt(savedDocument.getCreatedAt());
         return response;
+    }
+
+    private boolean hasValidPdfSignature(MultipartFile file) {
+
+        try (InputStream inputStream = file.getInputStream()) {
+
+            byte[] header = inputStream.readNBytes(5);
+
+            if (header.length < 5) {
+                return false;
+            }
+
+            String signature =
+                    new String(header, StandardCharsets.US_ASCII);
+
+            return signature.equals("%PDF-");
+
+        } catch (IOException ex) {
+            throw new InvalidDocumentException(
+                    "Unable to validate uploaded PDF"
+            );
+        }
     }
 
 }
