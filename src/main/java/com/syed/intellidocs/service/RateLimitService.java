@@ -14,11 +14,24 @@ public class RateLimitService {
     private final Map<Long, Bucket> askBuckets =
             new ConcurrentHashMap<>();
 
+    private final Map<Long, Bucket> searchBuckets =
+            new ConcurrentHashMap<>();
+
     public boolean allowAskRequest(Long userId) {
 
         Bucket bucket = askBuckets.computeIfAbsent(
                 userId,
                 id -> createAskBucket()
+        );
+
+        return bucket.tryConsume(1);
+    }
+
+    public boolean allowSearchRequest(Long userId) {
+
+        Bucket bucket = searchBuckets.computeIfAbsent(
+                userId,
+                id -> createSearchBucket()
         );
 
         return bucket.tryConsume(1);
@@ -30,6 +43,21 @@ public class RateLimitService {
                 .capacity(10)
                 .refillIntervally(
                         10,
+                        Duration.ofMinutes(1)
+                )
+                .build();
+
+        return Bucket.builder()
+                .addLimit(limit)
+                .build();
+    }
+
+    private Bucket createSearchBucket() {
+
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(30)
+                .refillIntervally(
+                        30,
                         Duration.ofMinutes(1)
                 )
                 .build();
