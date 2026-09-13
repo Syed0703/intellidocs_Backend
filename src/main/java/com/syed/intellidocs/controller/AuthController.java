@@ -10,6 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
+import com.syed.intellidocs.dto.response.CurrentUserResponse;
+import com.syed.intellidocs.security.CustomUserDetails;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -59,5 +62,22 @@ public class AuthController {
                 HttpHeaders.SET_COOKIE,
                 cookie.toString()
         );
+    }
+
+    @GetMapping("/me")
+    public CurrentUserResponse getCurrentUser(
+            Authentication authentication
+    ) {
+
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
+
+        CurrentUserResponse response =
+                new CurrentUserResponse();
+
+        response.setUserId(userDetails.getUserId());
+        response.setEmail(userDetails.getUsername());
+
+        return response;
     }
 }
