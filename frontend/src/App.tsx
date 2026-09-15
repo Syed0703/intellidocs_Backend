@@ -1,10 +1,22 @@
+import { Route, Routes } from "react-router-dom"
+import LoginPage from "./pages/LoginPage"
+import DashboardPage from "./pages/DashboardPage"
+import ProtectedRoute from "./components/ProtectedRoute"
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">
-        IntelliDocs
-      </h1>
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   )
 }
 
