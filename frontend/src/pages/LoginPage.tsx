@@ -36,7 +36,7 @@ function LoginPage() {
 
     console.log("Logged in user:", user)
 
-    navigate("/dashboard")
+    navigate("/ask")
   } catch {
     setError("Unable to connect to the server")
   } finally {
