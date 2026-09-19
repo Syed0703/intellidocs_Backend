@@ -1,9 +1,11 @@
-import { Navigate, Route, Routes } from "react-router-dom"
-import LoginPage from "./pages/LoginPage"
-import DashboardPage from "./pages/DashboardPage"
-import ProtectedRoute from "./components/ProtectedRoute"
-import AskPage from "./pages/AskPage"
-import AppLayout from "./components/AppLayout"
+import { Navigate, Route, Routes } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AskPage from "./pages/AskPage";
+import AppLayout from "./components/AppLayout";
+import KnowledgeBasesPage from "./pages/KnowledgeBasesPage";
+import DocumentsPage from "./pages/DocumentsPage";
 
 function App() {
   return (
@@ -20,19 +22,19 @@ function App() {
           </ProtectedRoute>
         }
       >
+        <Route path="/ask" element={<AskPage />} />
+
+        <Route path="/dashboard" element={<DashboardPage />} />
+
+        <Route path="/knowledge-bases" element={<KnowledgeBasesPage />} />
 
         <Route
-          path="/ask"
-          element={<AskPage />}
-        />
-
-        <Route
-          path="/dashboard"
-          element={<DashboardPage />}
+          path="/knowledge-bases/:knowledgeBaseId/documents"
+          element={<DocumentsPage />}
         />
       </Route>
     </Routes>
-  )
+  );
 }
 
-export default App
+export default App;

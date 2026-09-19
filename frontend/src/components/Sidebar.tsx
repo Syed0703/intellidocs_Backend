@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react"
-import { NavLink, useNavigate } from "react-router-dom"
+import { useState, type ReactNode } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Bot,
   FileText,
@@ -8,31 +8,31 @@ import {
   LogOut,
   Settings,
   Users,
-} from "lucide-react"
+} from "lucide-react";
 
-import { logout } from "../api/auth"
+import { logout } from "../api/auth";
 
 function Sidebar() {
-  const navigate = useNavigate()
-  const [loggingOut, setLoggingOut] = useState(false)
+  const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    setLoggingOut(true)
+    setLoggingOut(true);
 
     try {
-      const response = await logout()
+      const response = await logout();
 
       if (response.ok) {
-        navigate("/login", { replace: true })
+        navigate("/login", { replace: true });
       } else {
-        console.error("Logout failed:", response.status)
+        console.error("Logout failed:", response.status);
       }
     } catch (error) {
-      console.error("Logout failed:", error)
+      console.error("Logout failed:", error);
     } finally {
-      setLoggingOut(false)
+      setLoggingOut(false);
     }
-  }
+  };
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-[#123C32] px-4 py-5 text-white">
@@ -43,23 +43,15 @@ function Sidebar() {
         </div>
 
         <div>
-          <h1 className="text-lg font-semibold">
-            IntelliDocs
-          </h1>
+          <h1 className="text-lg font-semibold">IntelliDocs</h1>
 
-          <p className="text-xs text-white/50">
-            Knowledge workspace
-          </p>
+          <p className="text-xs text-white/50">Knowledge workspace</p>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="mt-10 flex flex-1 flex-col gap-1">
-        <SidebarItem
-          icon={<Bot size={19} />}
-          label="Ask AI"
-          to="/ask"
-        />
+        <SidebarItem icon={<Bot size={19} />} label="Ask AI" to="/ask" />
 
         <SidebarItem
           icon={<LayoutDashboard size={19} />}
@@ -67,10 +59,11 @@ function Sidebar() {
           to="/dashboard"
         />
 
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/65 transition hover:bg-white/10 hover:text-white">
-          <FolderOpen size={19} />
-          Knowledge Bases
-        </button>
+        <SidebarItem
+          icon={<FolderOpen size={19} />}
+          label="Knowledge Bases"
+          to="/knowledge-bases"
+        />
 
         <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/65 transition hover:bg-white/10 hover:text-white">
           <FileText size={19} />
@@ -100,20 +93,16 @@ function Sidebar() {
         {loggingOut ? "Logging out..." : "Logout"}
       </button>
     </aside>
-  )
+  );
 }
 
 type SidebarItemProps = {
-  icon: ReactNode
-  label: string
-  to: string
-}
+  icon: ReactNode;
+  label: string;
+  to: string;
+};
 
-function SidebarItem({
-  icon,
-  label,
-  to,
-}: SidebarItemProps) {
+function SidebarItem({ icon, label, to }: SidebarItemProps) {
   return (
     <NavLink
       to={to}
@@ -128,7 +117,7 @@ function SidebarItem({
       {icon}
       {label}
     </NavLink>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;
