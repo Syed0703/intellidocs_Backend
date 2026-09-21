@@ -65,11 +65,6 @@ function Sidebar() {
           to="/knowledge-bases"
         />
 
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/65 transition hover:bg-white/10 hover:text-white">
-          <FileText size={19} />
-          Documents
-        </button>
-
         <SidebarItem icon={<Users size={19} />} label="Members" to="/members" />
 
         <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/65 transition hover:bg-white/10 hover:text-white">

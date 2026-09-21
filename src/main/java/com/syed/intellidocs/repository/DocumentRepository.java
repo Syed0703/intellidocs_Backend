@@ -25,4 +25,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
             Long knowledgeBaseId,
             Long organizationId
     );
+
+    boolean existsByKnowledgeBaseKnowledgeBaseId(Long knowledgeBaseId);
 }

@@ -1,6 +1,7 @@
 package com.syed.intellidocs.controller;
 
 import com.syed.intellidocs.dto.request.CreateKnowledgeBaseRequest;
+import com.syed.intellidocs.dto.request.UpdateKnowledgeBaseRequest;
 import com.syed.intellidocs.dto.response.KnowledgeBaseResponse;
 import com.syed.intellidocs.service.KnowledgeBaseService;
 import jakarta.validation.Valid;
@@ -31,5 +32,30 @@ public class KnowledgeBaseController {
     @GetMapping
     public List<KnowledgeBaseResponse> getKnowledgeBases(@PathVariable Long organizationId) {
         return knowledgeBaseService.getKnowledgeBases(organizationId);
+    }
+
+    @PutMapping("/{knowledgeBaseId}")
+    public KnowledgeBaseResponse updateKnowledgeBase(
+            @PathVariable Long organizationId,
+            @PathVariable Long knowledgeBaseId,
+            @Valid @RequestBody UpdateKnowledgeBaseRequest request
+    ) {
+        return knowledgeBaseService.updateKnowledgeBase(
+                organizationId,
+                knowledgeBaseId,
+                request
+        );
+    }
+
+    @DeleteMapping("/{knowledgeBaseId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteKnowledgeBase(
+            @PathVariable Long organizationId,
+            @PathVariable Long knowledgeBaseId
+    ) {
+        knowledgeBaseService.deleteKnowledgeBase(
+                organizationId,
+                knowledgeBaseId
+        );
     }
 }
