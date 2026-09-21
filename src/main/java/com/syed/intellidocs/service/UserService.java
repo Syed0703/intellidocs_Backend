@@ -4,6 +4,7 @@ import com.syed.intellidocs.dto.request.CreateUserRequest;
 import com.syed.intellidocs.dto.response.UserResponse;
 import com.syed.intellidocs.entity.User;
 import com.syed.intellidocs.enums.UserStatus;
+import com.syed.intellidocs.exception.UserAlreadyExistsException;
 import com.syed.intellidocs.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,21 @@ public class UserService {
     }
 
     public UserResponse createUser(CreateUserRequest request) {
+
+        boolean userExists = userRepository
+                .findByEmail(request.getEmail())
+                .isPresent();
+
+        if (userExists) {
+            throw new UserAlreadyExistsException();
+        }
+
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setStatus(UserStatus.ACTIVE);
+
         User savedUser = userRepository.save(user);
 
         UserResponse response = new UserResponse();

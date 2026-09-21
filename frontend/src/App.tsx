@@ -7,11 +7,14 @@ import AppLayout from "./components/AppLayout";
 import KnowledgeBasesPage from "./pages/KnowledgeBasesPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import MembersPage from "./pages/MembersPage";
+import SignupPage from "./pages/SignupPage";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+
+      <Route path="/signup" element={<SignupPage/>}/>
 
       {/* Default route */}
       <Route path="/" element={<Navigate to="/ask" replace />} />

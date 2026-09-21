@@ -1,56 +1,54 @@
-import { useState, type FormEvent } from "react"
-import { useNavigate } from "react-router-dom"
-import { FileText, Lock, Mail, Sparkles } from "lucide-react"
-import { getCurrentUser, login } from "../api/auth"
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FileText, Lock, Mail, Sparkles } from "lucide-react";
+import { getCurrentUser, login } from "../api/auth";
 
 function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault()
+    event.preventDefault();
 
-  setError("")
-  setLoading(true)
+    setError("");
+    setLoading(true);
 
-  try {
-    const loginResponse = await login(email, password)
+    try {
+      const loginResponse = await login(email, password);
 
-    if (!loginResponse.ok) {
-      setError("Invalid email or password")
-      return
+      if (!loginResponse.ok) {
+        setError("Invalid email or password");
+        return;
+      }
+
+      const userResponse = await getCurrentUser();
+
+      if (!userResponse.ok) {
+        setError("Unable to verify your account");
+        return;
+      }
+
+      const user = await userResponse.json();
+
+      console.log("Logged in user:", user);
+
+      navigate("/ask");
+    } catch {
+      setError("Unable to connect to the server");
+    } finally {
+      setLoading(false);
     }
-
-    const userResponse = await getCurrentUser()
-
-    if (!userResponse.ok) {
-      setError("Unable to verify your account")
-      return
-    }
-
-    const user = await userResponse.json()
-
-    console.log("Logged in user:", user)
-
-    navigate("/ask")
-  } catch {
-    setError("Unable to connect to the server")
-  } finally {
-    setLoading(false)
-  }
-}
+  };
 
   return (
     <div className="min-h-screen bg-[#F7F6F2]">
       <div className="flex min-h-screen">
-
         {/* Left branding section */}
         <div className="hidden w-[42%] max-w-[720px] flex-col justify-between bg-[#123C32] p-10 text-white lg:flex xl:p-12">
-
           {/* Brand */}
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/15 bg-white/10">
@@ -77,9 +75,7 @@ function LoginPage() {
 
             <h2 className="text-4xl font-semibold leading-tight tracking-tight xl:text-[42px]">
               Your organization's knowledge,
-              <span className="text-[#A8C9BD]">
-                {" "}always within reach.
-              </span>
+              <span className="text-[#A8C9BD]"> always within reach.</span>
             </h2>
 
             <p className="mt-5 max-w-sm text-base leading-7 text-white/65">
@@ -88,15 +84,12 @@ function LoginPage() {
             </p>
           </div>
 
-          <p className="text-sm text-white/40">
-            IntelliDocs
-          </p>
+          <p className="text-sm text-white/40">IntelliDocs</p>
         </div>
 
         {/* Login section */}
         <div className="flex flex-1 items-center justify-center px-6 py-12 sm:px-10 xl:px-16">
           <div className="w-full max-w-[420px]">
-
             {/* Mobile/tablet brand */}
             <div className="mb-10 flex items-center gap-3 lg:hidden">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#123C32] text-white">
@@ -125,7 +118,6 @@ function LoginPage() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-
               {/* Email */}
               <div>
                 <label
@@ -199,15 +191,24 @@ function LoginPage() {
               </button>
             </form>
 
+            <p className="mt-7 text-center text-sm text-[#707571]">
+              Don&apos;t have an account?{" "}
+              <Link
+                to="/signup"
+                className="font-medium text-[#285C4D] hover:underline"
+              >
+                Create account
+              </Link>
+            </p>
+
             <p className="mt-8 text-center text-xs text-[#8A8E8B]">
               Secure access to your organization's knowledge.
             </p>
           </div>
         </div>
-
       </div>
     </div>
-  )
+  );
 }
 
-export default LoginPage
+export default LoginPage;

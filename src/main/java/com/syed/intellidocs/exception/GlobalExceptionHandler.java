@@ -219,4 +219,15 @@ public class GlobalExceptionHandler {
 
         return response;
     }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserAlreadyExists(
+            UserAlreadyExistsException ex
+    ) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(409);
+        response.setMessage(ex.getMessage());
+        return response;
+    }
 }
