@@ -6,6 +6,7 @@ import AskPage from "./pages/AskPage";
 import AppLayout from "./components/AppLayout";
 import KnowledgeBasesPage from "./pages/KnowledgeBasesPage";
 import DocumentsPage from "./pages/DocumentsPage";
+import MembersPage from "./pages/MembersPage";
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
           path="/knowledge-bases/:knowledgeBaseId/documents"
           element={<DocumentsPage />}
         />
+
+        <Route path="/members" element={<MembersPage />} />
+        
       </Route>
     </Routes>
   );

@@ -23,7 +23,7 @@ public class MembershipController {
     @ResponseStatus(HttpStatus.CREATED)
     public MembershipResponse createMembership(@Valid @RequestBody CreateMembershipRequest request) {
         return membershipService.createMembership(
-                request.getUserId(),
+                request.getEmail(),
                 request.getOrganizationId(),
                 request.getRole()
         );

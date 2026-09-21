@@ -1,6 +1,8 @@
 package com.syed.intellidocs.dto.request;
 
 import com.syed.intellidocs.enums.MembershipRole;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +11,9 @@ import lombok.Setter;
 @Setter
 public class CreateMembershipRequest {
 
-    @NotNull(message = "User id is required")
-    private Long userId;
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email")
+    private String email;
 
     @NotNull(message = "Organization id is required")
     private Long organizationId;

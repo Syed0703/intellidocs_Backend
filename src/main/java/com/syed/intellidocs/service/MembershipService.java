@@ -36,20 +36,20 @@ public class MembershipService {
     }
 
     public MembershipResponse createMembership(
-            Long userId,
+            String email,
             Long organizationId,
             MembershipRole role
     ) {
         organizationAccessService.requireAdmin(organizationId);
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException());
 
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new OrganizationNotFoundException());
 
         boolean existingMembership = membershipRepository
-                .existsByUserUserIdAndOrganizationOrganizationId(userId, organizationId);
+                .existsByUserUserIdAndOrganizationOrganizationId(user.getUserId(), organizationId);
 
         if(existingMembership) {
             throw new MembershipAlreadyExistsException();
@@ -73,7 +73,7 @@ public class MembershipService {
 
     public List<MembershipResponse> getMemberships(Long organizationId) {
 
-        organizationAccessService.requireAdmin(organizationId);
+        organizationAccessService.getMembership(organizationId);
 
         List<Membership> memberships =
                 membershipRepository.findByOrganizationOrganizationId(
