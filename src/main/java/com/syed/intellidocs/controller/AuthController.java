@@ -36,7 +36,7 @@ public class AuthController {
                 .secure(false)
                 .sameSite("Strict")
                 .path("/")
-                .maxAge(15 * 60)
+                .maxAge(30 * 60)
                 .build();
 
         response.addHeader(
@@ -55,7 +55,7 @@ public class AuthController {
                 .secure(false)
                 .sameSite("Strict")
                 .path("/")
-                .maxAge(30 * 60)
+                .maxAge(0)
                 .build();
 
         response.addHeader(
