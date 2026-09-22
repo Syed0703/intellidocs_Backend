@@ -1,3 +1,8 @@
+export type CurrentUser = {
+  userId: number
+  name: string
+  email: string
+}
 export async function login(email: string, password: string) {
   const response = await fetch(
     "http://localhost:8080/api/auth/login",

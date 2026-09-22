@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent } from "react"
-import { useNavigate, useOutletContext } from "react-router-dom"
+import { useEffect, useState, type FormEvent } from "react";
+
+import { useNavigate, useOutletContext } from "react-router-dom";
+
 import {
   ArrowRight,
   BookOpen,
@@ -9,9 +11,9 @@ import {
   Search,
   Trash2,
   X,
-} from "lucide-react"
+} from "lucide-react";
 
-import type { Organization } from "../api/organizations"
+import type { Organization } from "../api/organizations";
 
 import {
   createKnowledgeBase,
@@ -19,402 +21,333 @@ import {
   getKnowledgeBases,
   updateKnowledgeBase,
   type KnowledgeBase,
-} from "../api/knowledgeBases"
+} from "../api/knowledgeBases";
 
 function KnowledgeBasesPage() {
-  const selectedOrganization =
-    useOutletContext<Organization | null>()
+  const selectedOrganization = useOutletContext<Organization | null>();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [knowledgeBases, setKnowledgeBases] =
-    useState<KnowledgeBase[]>([])
+  const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Search
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState("");
 
   // =========================
   // CREATE
   // =========================
 
-  const [showCreateModal, setShowCreateModal] =
-    useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const [name, setName] = useState("")
-  const [description, setDescription] =
-    useState("")
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
 
-  const [creating, setCreating] = useState(false)
-  const [createError, setCreateError] =
-    useState("")
+  const [creating, setCreating] = useState(false);
+
+  const [createError, setCreateError] = useState("");
 
   // =========================
   // EDIT
   // =========================
 
-  const [
-    knowledgeBaseToEdit,
-    setKnowledgeBaseToEdit,
-  ] = useState<KnowledgeBase | null>(null)
+  const [knowledgeBaseToEdit, setKnowledgeBaseToEdit] =
+    useState<KnowledgeBase | null>(null);
 
-  const [editName, setEditName] = useState("")
-  const [editDescription, setEditDescription] =
-    useState("")
+  const [editName, setEditName] = useState("");
 
-  const [updating, setUpdating] = useState(false)
-  const [editError, setEditError] = useState("")
+  const [editDescription, setEditDescription] = useState("");
+
+  const [updating, setUpdating] = useState(false);
+
+  const [editError, setEditError] = useState("");
 
   // =========================
   // DELETE
   // =========================
 
-  const [
-    knowledgeBaseToDelete,
-    setKnowledgeBaseToDelete,
-  ] = useState<KnowledgeBase | null>(null)
+  const [knowledgeBaseToDelete, setKnowledgeBaseToDelete] =
+    useState<KnowledgeBase | null>(null);
 
-  const [deleting, setDeleting] = useState(false)
-  const [deleteError, setDeleteError] =
-    useState("")
+  const [deleting, setDeleting] = useState(false);
 
-  const isAdmin =
-    selectedOrganization?.role === "ADMIN"
+  const [deleteError, setDeleteError] = useState("");
+
+  const isAdmin = selectedOrganization?.role === "ADMIN";
 
   // =========================
   // LOAD KNOWLEDGE BASES
   // =========================
 
   useEffect(() => {
-    if (!selectedOrganization) return
+    if (!selectedOrganization) return;
 
     const loadKnowledgeBases = async () => {
-      setLoading(true)
-      setError("")
+      setLoading(true);
+      setError("");
+      setKnowledgeBases([]);
 
       try {
-        const response =
-          await getKnowledgeBases(
-            selectedOrganization.organizationId
-          )
+        const response = await getKnowledgeBases(
+          selectedOrganization.organizationId,
+        );
 
         if (!response.ok) {
-          setError(
-            "Unable to load knowledge bases"
-          )
-          return
+          const data = await response.json().catch(() => null);
+
+          setError(data?.message || "Unable to load knowledge bases");
+
+          return;
         }
 
-        const data: KnowledgeBase[] =
-          await response.json()
+        const data: KnowledgeBase[] = await response.json();
 
-        setKnowledgeBases(data)
+        setKnowledgeBases(data);
       } catch {
-        setError(
-          "Unable to connect to the server"
-        )
+        setError("Unable to connect to the server");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    // Reset page-specific state when organization changes
-    setSearch("")
-    setShowCreateModal(false)
-    setKnowledgeBaseToEdit(null)
-    setKnowledgeBaseToDelete(null)
+    // Reset state when organization changes
+    setSearch("");
+    setShowCreateModal(false);
+    setKnowledgeBaseToEdit(null);
+    setKnowledgeBaseToDelete(null);
 
-    loadKnowledgeBases()
-  }, [selectedOrganization])
+    loadKnowledgeBases();
+  }, [selectedOrganization]);
 
   // =========================
   // CREATE
   // =========================
 
   const handleCreateKnowledgeBase = async (
-    event: FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>,
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    if (
-      !selectedOrganization ||
-      !name.trim()
-    ) {
-      return
+    if (!selectedOrganization || !name.trim()) {
+      return;
     }
 
-    setCreating(true)
-    setCreateError("")
+    setCreating(true);
+    setCreateError("");
 
     try {
-      const response =
-        await createKnowledgeBase(
-          selectedOrganization.organizationId,
-          {
-            name: name.trim(),
-            description:
-              description.trim() || null,
-          }
-        )
+      const response = await createKnowledgeBase(
+        selectedOrganization.organizationId,
+        {
+          name: name.trim(),
+          description: description.trim() || null,
+        },
+      );
 
       if (!response.ok) {
-        const data = await response
-          .json()
-          .catch(() => null)
+        const data = await response.json().catch(() => null);
 
-        setCreateError(
-          data?.message ||
-            "Unable to create knowledge base"
-        )
+        setCreateError(data?.message || "Unable to create knowledge base");
 
-        return
+        return;
       }
 
-      const newKnowledgeBase: KnowledgeBase =
-        await response.json()
+      const newKnowledgeBase: KnowledgeBase = await response.json();
 
-      setKnowledgeBases((current) => [
-        newKnowledgeBase,
-        ...current,
-      ])
+      setKnowledgeBases((current) => [newKnowledgeBase, ...current]);
 
-      setName("")
-      setDescription("")
-      setShowCreateModal(false)
+      setName("");
+      setDescription("");
+      setShowCreateModal(false);
     } catch {
-      setCreateError(
-        "Unable to connect to the server"
-      )
+      setCreateError("Unable to connect to the server");
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
   const handleCloseCreateModal = () => {
-    if (creating) return
+    if (creating) return;
 
-    setShowCreateModal(false)
-    setName("")
-    setDescription("")
-    setCreateError("")
-  }
+    setShowCreateModal(false);
+    setName("");
+    setDescription("");
+    setCreateError("");
+  };
 
   // =========================
   // EDIT
   // =========================
 
-  const handleOpenEditModal = (
-    knowledgeBase: KnowledgeBase
-  ) => {
-    setKnowledgeBaseToEdit(knowledgeBase)
+  const handleOpenEditModal = (knowledgeBase: KnowledgeBase) => {
+    setKnowledgeBaseToEdit(knowledgeBase);
 
-    setEditName(knowledgeBase.name)
+    setEditName(knowledgeBase.name);
 
-    setEditDescription(
-      knowledgeBase.description ?? ""
-    )
+    setEditDescription(knowledgeBase.description ?? "");
 
-    setEditError("")
-  }
+    setEditError("");
+  };
 
   const handleCloseEditModal = () => {
-    if (updating) return
+    if (updating) return;
 
-    setKnowledgeBaseToEdit(null)
-    setEditName("")
-    setEditDescription("")
-    setEditError("")
-  }
+    setKnowledgeBaseToEdit(null);
+    setEditName("");
+    setEditDescription("");
+    setEditError("");
+  };
 
   const handleUpdateKnowledgeBase = async (
-    event: FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>,
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    if (
-      !selectedOrganization ||
-      !knowledgeBaseToEdit ||
-      !editName.trim()
-    ) {
-      return
+    if (!selectedOrganization || !knowledgeBaseToEdit || !editName.trim()) {
+      return;
     }
 
-    setUpdating(true)
-    setEditError("")
+    setUpdating(true);
+    setEditError("");
 
     try {
-      const response =
-        await updateKnowledgeBase(
-          selectedOrganization.organizationId,
-          knowledgeBaseToEdit.knowledgeBaseId,
-          {
-            name: editName.trim(),
-            description:
-              editDescription.trim() || null,
-          }
-        )
+      const response = await updateKnowledgeBase(
+        selectedOrganization.organizationId,
+        knowledgeBaseToEdit.knowledgeBaseId,
+        {
+          name: editName.trim(),
+          description: editDescription.trim() || null,
+        },
+      );
 
       if (!response.ok) {
-        const data = await response
-          .json()
-          .catch(() => null)
+        const data = await response.json().catch(() => null);
 
-        setEditError(
-          data?.message ||
-            "Unable to update knowledge base"
-        )
+        setEditError(data?.message || "Unable to update knowledge base");
 
-        return
+        return;
       }
 
-      const updatedKnowledgeBase: KnowledgeBase =
-        await response.json()
+      const updatedKnowledgeBase: KnowledgeBase = await response.json();
 
-      // Update only the edited KB in frontend state
       setKnowledgeBases((current) =>
         current.map((knowledgeBase) =>
-          knowledgeBase.knowledgeBaseId ===
-          updatedKnowledgeBase.knowledgeBaseId
+          knowledgeBase.knowledgeBaseId === updatedKnowledgeBase.knowledgeBaseId
             ? updatedKnowledgeBase
-            : knowledgeBase
-        )
-      )
+            : knowledgeBase,
+        ),
+      );
 
-      handleCloseEditModal()
+      setKnowledgeBaseToEdit(null);
+      setEditName("");
+      setEditDescription("");
+      setEditError("");
     } catch {
-      setEditError(
-        "Unable to connect to the server"
-      )
+      setEditError("Unable to connect to the server");
     } finally {
-      setUpdating(false)
+      setUpdating(false);
     }
-  }
+  };
 
   // =========================
   // DELETE
   // =========================
 
-  const handleOpenDeleteModal = (
-    knowledgeBase: KnowledgeBase
-  ) => {
-    setKnowledgeBaseToDelete(knowledgeBase)
-    setDeleteError("")
-  }
+  const handleOpenDeleteModal = (knowledgeBase: KnowledgeBase) => {
+    setKnowledgeBaseToDelete(knowledgeBase);
+    setDeleteError("");
+  };
 
   const handleCloseDeleteModal = () => {
-    if (deleting) return
+    if (deleting) return;
 
-    setKnowledgeBaseToDelete(null)
-    setDeleteError("")
-  }
+    setKnowledgeBaseToDelete(null);
+    setDeleteError("");
+  };
 
-  const handleDeleteKnowledgeBase =
-    async () => {
-      if (
-        !selectedOrganization ||
-        !knowledgeBaseToDelete
-      ) {
-        return
-      }
-
-      setDeleting(true)
-      setDeleteError("")
-
-      try {
-        const response =
-          await deleteKnowledgeBase(
-            selectedOrganization.organizationId,
-            knowledgeBaseToDelete.knowledgeBaseId
-          )
-
-        if (!response.ok) {
-          const data = await response
-            .json()
-            .catch(() => null)
-
-          setDeleteError(
-            data?.message ||
-              "Unable to delete knowledge base"
-          )
-
-          return
-        }
-
-        setKnowledgeBases((current) =>
-          current.filter(
-            (knowledgeBase) =>
-              knowledgeBase.knowledgeBaseId !==
-              knowledgeBaseToDelete.knowledgeBaseId
-          )
-        )
-
-        setKnowledgeBaseToDelete(null)
-      } catch {
-        setDeleteError(
-          "Unable to connect to the server"
-        )
-      } finally {
-        setDeleting(false)
-      }
+  const handleDeleteKnowledgeBase = async () => {
+    if (!selectedOrganization || !knowledgeBaseToDelete) {
+      return;
     }
+
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      const response = await deleteKnowledgeBase(
+        selectedOrganization.organizationId,
+        knowledgeBaseToDelete.knowledgeBaseId,
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+
+        setDeleteError(data?.message || "Unable to delete knowledge base");
+
+        return;
+      }
+
+      setKnowledgeBases((current) =>
+        current.filter(
+          (knowledgeBase) =>
+            knowledgeBase.knowledgeBaseId !==
+            knowledgeBaseToDelete.knowledgeBaseId,
+        ),
+      );
+
+      setKnowledgeBaseToDelete(null);
+    } catch {
+      setDeleteError("Unable to connect to the server");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // =========================
   // SEARCH
   // =========================
 
-  const filteredKnowledgeBases =
-    knowledgeBases
-      .filter((knowledgeBase) => {
-        const query =
-          search.trim().toLowerCase()
+  const filteredKnowledgeBases = knowledgeBases
+    .filter((knowledgeBase) => {
+      const query = search.trim().toLowerCase();
 
-        if (!query) return true
+      if (!query) return true;
 
-        return (
-          knowledgeBase.name
-            .toLowerCase()
-            .includes(query) ||
-          knowledgeBase.description
-            ?.toLowerCase()
-            .includes(query)
-        )
-      })
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() -
-          new Date(a.createdAt).getTime()
-      )
+      return (
+        knowledgeBase.name.toLowerCase().includes(query) ||
+        knowledgeBase.description?.toLowerCase().includes(query)
+      );
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-8 py-8 xl:px-12">
-
+    <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 xl:px-12">
       {/* ================= HEADER ================= */}
 
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-start">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold text-[#202422]">
             Knowledge Bases
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#707571]">
-            Organize your organization's documents
-            into focused knowledge spaces for
-            accurate AI-powered answers.
+            Organize your organization's documents into focused knowledge spaces
+            for accurate AI-powered answers.
           </p>
         </div>
 
         {isAdmin && (
           <button
             type="button"
-            onClick={() =>
-              setShowCreateModal(true)
-            }
-            className="flex w-fit items-center gap-2 rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D]"
+            onClick={() => setShowCreateModal(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D] sm:w-fit"
           >
             <Plus size={18} />
-
             New Knowledge Base
           </button>
         )}
@@ -422,110 +355,106 @@ function KnowledgeBasesPage() {
 
       {/* ================= SUMMARY ================= */}
 
-      {!loading &&
-        !error &&
-        selectedOrganization && (
-          <div className="mt-7 flex items-center gap-3 rounded-xl border border-[#DFE1DC] bg-white px-5 py-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EAF1ED] text-[#285C4D]">
-              <BookOpen size={20} />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-[#202422]">
-                {knowledgeBases.length}{" "}
-                {knowledgeBases.length === 1
-                  ? "knowledge base"
-                  : "knowledge bases"}
-              </p>
-
-              <p className="mt-0.5 text-xs text-[#7A807C]">
-                in{" "}
-                {
-                  selectedOrganization.organizationName
-                }
-              </p>
-            </div>
+      {!loading && !error && selectedOrganization && (
+        <div className="mt-7 flex min-w-0 items-center gap-3 rounded-xl border border-[#DFE1DC] bg-white px-4 py-4 sm:px-5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#EAF1ED] text-[#285C4D]">
+            <BookOpen size={20} />
           </div>
-        )}
+
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-[#202422]">
+              {knowledgeBases.length}{" "}
+              {knowledgeBases.length === 1
+                ? "knowledge base"
+                : "knowledge bases"}
+            </p>
+
+            <p className="mt-0.5 truncate text-xs text-[#7A807C]">
+              in {selectedOrganization.organizationName}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ================= SEARCH ================= */}
 
-      {!loading &&
-        !error &&
-        knowledgeBases.length > 0 && (
-          <div className="mt-6">
-            <div className="relative max-w-md">
-              <Search
-                size={18}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A8F8B]"
-              />
+      {!loading && !error && knowledgeBases.length > 0 && (
+        <div className="mt-6">
+          <div className="relative w-full max-w-md">
+            <Search
+              size={18}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A8F8B]"
+            />
 
-              <input
-                type="text"
-                value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Search knowledge bases..."
-                className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
-              />
-            </div>
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search knowledge bases..."
+              className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
+            />
           </div>
-        )}
+        </div>
+      )}
 
       {/* ================= LOADING ================= */}
 
       {loading && (
-        <div className="mt-8 rounded-xl border border-[#DFE1DC] bg-white p-8">
-          <p className="text-sm text-[#707571]">
-            Loading knowledge bases...
-          </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {[1, 2, 3].map((item) => (
+            <div
+              key={item}
+              className="h-[245px] animate-pulse rounded-2xl border border-[#DFE1DC] bg-white p-5"
+            >
+              <div className="h-11 w-11 rounded-xl bg-[#ECEEEA]" />
+
+              <div className="mt-5 h-4 w-36 rounded bg-[#ECEEEA]" />
+
+              <div className="mt-3 h-3 w-full rounded bg-[#F0F1EE]" />
+
+              <div className="mt-2 h-3 w-3/4 rounded bg-[#F0F1EE]" />
+            </div>
+          ))}
         </div>
       )}
 
       {/* ================= ERROR ================= */}
 
-      {error && (
-        <div className="mt-8 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+      {!loading && error && (
+        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {/* ================= EMPTY ================= */}
 
-      {!loading &&
-        !error &&
-        knowledgeBases.length === 0 && (
-          <div className="mt-8 flex min-h-[340px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#CED2CD] bg-white px-6 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EAF1ED] text-[#285C4D]">
-              <BookOpen size={26} />
-            </div>
-
-            <h2 className="mt-5 text-lg font-semibold text-[#202422]">
-              No knowledge bases yet
-            </h2>
-
-            <p className="mt-2 max-w-md text-sm leading-6 text-[#707571]">
-              Knowledge bases help organize related
-              documents so IntelliDocs can retrieve
-              more relevant information.
-            </p>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() =>
-                  setShowCreateModal(true)
-                }
-                className="mt-6 flex items-center gap-2 rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D]"
-              >
-                <Plus size={17} />
-
-                Create Knowledge Base
-              </button>
-            )}
+      {!loading && !error && knowledgeBases.length === 0 && (
+        <div className="mt-6 flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#CED2CD] bg-white px-5 py-10 text-center sm:min-h-[340px] sm:px-6">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EAF1ED] text-[#285C4D]">
+            <BookOpen size={26} />
           </div>
-        )}
+
+          <h2 className="mt-5 text-lg font-semibold text-[#202422]">
+            No knowledge bases yet
+          </h2>
+
+          <p className="mt-2 max-w-md text-sm leading-6 text-[#707571]">
+            Knowledge bases help organize related documents so IntelliDocs can
+            retrieve more relevant information.
+          </p>
+
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D] sm:w-fit"
+            >
+              <Plus size={17} />
+              Create Knowledge Base
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ============== NO SEARCH RESULTS ============== */}
 
@@ -533,141 +462,123 @@ function KnowledgeBasesPage() {
         !error &&
         knowledgeBases.length > 0 &&
         filteredKnowledgeBases.length === 0 && (
-          <div className="mt-8 rounded-xl border border-[#DFE1DC] bg-white p-10 text-center">
+          <div className="mt-6 rounded-xl border border-[#DFE1DC] bg-white px-5 py-10 text-center">
             <p className="font-medium text-[#202422]">
               No matching knowledge bases
             </p>
 
             <p className="mt-2 text-sm text-[#707571]">
-              Try searching with a different name
-              or description.
+              Try searching with a different name or description.
             </p>
           </div>
         )}
 
       {/* ================= GRID ================= */}
 
-      {!loading &&
-        !error &&
-        filteredKnowledgeBases.length > 0 && (
-          <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {filteredKnowledgeBases.map(
-              (knowledgeBase) => (
-                <div
-                  key={
-                    knowledgeBase.knowledgeBaseId
-                  }
-                  className="group flex min-h-[245px] flex-col rounded-2xl border border-[#DFE1DC] bg-white p-5 transition hover:border-[#C5CBC6] hover:shadow-sm"
-                >
-
-                  {/* Card Top */}
-                  <div className="flex items-start justify-between gap-4">
-
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EAF1ED] text-[#285C4D]">
-                      <BookOpen size={21} />
-                    </div>
-
-                    <div className="flex items-center gap-3">
-
-                      <div className="flex items-center gap-1.5 text-xs text-[#8A8F8B]">
-                        <CalendarDays size={14} />
-
-                        {new Date(
-                          knowledgeBase.createdAt
-                        ).toLocaleDateString()}
-                      </div>
-
-                      {/* Admin Actions */}
-                      {isAdmin && (
-                        <div className="flex items-center gap-1">
-
-                          {/* Edit */}
-                          <button
-                            type="button"
-                            title="Edit knowledge base"
-                            onClick={() =>
-                              handleOpenEditModal(
-                                knowledgeBase
-                              )
-                            }
-                            className="rounded-lg p-2 text-[#707571] transition hover:bg-[#EEF2EF] hover:text-[#285C4D]"
-                          >
-                            <Pencil size={16} />
-                          </button>
-
-                          {/* Delete */}
-                          <button
-                            type="button"
-                            title="Delete knowledge base"
-                            onClick={() =>
-                              handleOpenDeleteModal(
-                                knowledgeBase
-                              )
-                            }
-                            className="rounded-lg p-2 text-[#8A8F8B] transition hover:bg-red-50 hover:text-red-600"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="mt-5 flex-1">
-                    <h2 className="text-base font-semibold text-[#202422]">
-                      {knowledgeBase.name}
-                    </h2>
-
-                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#707571]">
-                      {knowledgeBase.description ||
-                        "No description provided for this knowledge base."}
-                    </p>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="mt-5 border-t border-[#ECEDE9] pt-4">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        navigate(
-                          `/knowledge-bases/${knowledgeBase.knowledgeBaseId}/documents`
-                        )
-                      }
-                      className="flex w-full items-center justify-between text-sm font-medium text-[#285C4D]"
-                    >
-                      <span>
-                        Open Documents
-                      </span>
-
-                      <ArrowRight
-                        size={17}
-                        className="transition-transform group-hover:translate-x-1"
-                      />
-                    </button>
-                  </div>
+      {!loading && !error && filteredKnowledgeBases.length > 0 && (
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-5">
+          {filteredKnowledgeBases.map((knowledgeBase) => (
+            <div
+              key={knowledgeBase.knowledgeBaseId}
+              className="group flex min-w-0 flex-col rounded-2xl border border-[#DFE1DC] bg-white p-4 transition hover:border-[#C5CBC6] hover:shadow-sm sm:min-h-[245px] sm:p-5"
+            >
+              {/* Card Top */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EAF1ED] text-[#285C4D]">
+                  <BookOpen size={21} />
                 </div>
-              )
-            )}
-          </div>
-        )}
 
-      {/* CREATE MODAL */}
+                <div className="flex shrink-0 items-center gap-1">
+                  {/* Desktop / Tablet Date */}
+                  <div className="mr-1 hidden items-center gap-1.5 text-xs text-[#8A8F8B] sm:flex">
+                    <CalendarDays size={14} />
+
+                    {new Date(knowledgeBase.createdAt).toLocaleDateString()}
+                  </div>
+
+                  {/* Admin Actions */}
+                  {isAdmin && (
+                    <>
+                      <button
+                        type="button"
+                        aria-label={`Edit ${knowledgeBase.name}`}
+                        title="Edit knowledge base"
+                        onClick={() => handleOpenEditModal(knowledgeBase)}
+                        className="rounded-lg p-2 text-[#707571] transition hover:bg-[#EEF2EF] hover:text-[#285C4D]"
+                      >
+                        <Pencil size={16} />
+                      </button>
+
+                      <button
+                        type="button"
+                        aria-label={`Delete ${knowledgeBase.name}`}
+                        title="Delete knowledge base"
+                        onClick={() => handleOpenDeleteModal(knowledgeBase)}
+                        className="rounded-lg p-2 text-[#8A8F8B] transition hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="mt-5 min-w-0 flex-1">
+                <h2 className="break-words text-base font-semibold text-[#202422]">
+                  {knowledgeBase.name}
+                </h2>
+
+                <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-[#707571]">
+                  {knowledgeBase.description ||
+                    "No description provided for this knowledge base."}
+                </p>
+
+                {/* Mobile Date */}
+                <div className="mt-3 flex items-center gap-1.5 text-xs text-[#8A8F8B] sm:hidden">
+                  <CalendarDays size={13} />
+
+                  {new Date(knowledgeBase.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-5 border-t border-[#ECEDE9] pt-4">
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      `/knowledge-bases/${knowledgeBase.knowledgeBaseId}/documents`,
+                    )
+                  }
+                  className="flex w-full items-center justify-between gap-3 text-sm font-medium text-[#285C4D]"
+                >
+                  <span>Open Documents</span>
+
+                  <ArrowRight
+                    size={17}
+                    className="shrink-0 transition-transform group-hover:translate-x-1"
+                  />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ================= CREATE MODAL ================= */}
 
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-[#DFE1DC] bg-white p-6 shadow-xl">
-
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 px-4 py-4 sm:items-center">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#DFE1DC] bg-white p-5 shadow-xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-[#202422]">
                   Create Knowledge Base
                 </h2>
 
                 <p className="mt-1 text-sm leading-6 text-[#707571]">
-                  Create a focused space for related
-                  organizational documents.
+                  Create a focused space for related organizational documents.
                 </p>
               </div>
 
@@ -675,7 +586,8 @@ function KnowledgeBasesPage() {
                 type="button"
                 onClick={handleCloseCreateModal}
                 disabled={creating}
-                className="rounded-lg p-2 text-[#707571] transition hover:bg-[#F3F4F1]"
+                aria-label="Close"
+                className="shrink-0 rounded-lg p-2 text-[#707571] transition hover:bg-[#F3F4F1]"
               >
                 <X size={19} />
               </button>
@@ -693,9 +605,7 @@ function KnowledgeBasesPage() {
                 <input
                   type="text"
                   value={name}
-                  onChange={(event) =>
-                    setName(event.target.value)
-                  }
+                  onChange={(event) => setName(event.target.value)}
                   placeholder="e.g. HR Policies"
                   autoFocus
                   required
@@ -710,11 +620,7 @@ function KnowledgeBasesPage() {
 
                 <textarea
                   value={description}
-                  onChange={(event) =>
-                    setDescription(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setDescription(event.target.value)}
                   rows={4}
                   placeholder="Describe this knowledge base..."
                   className="w-full resize-none rounded-xl border border-[#DCDDD8] bg-white px-4 py-3 text-sm outline-none focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
@@ -722,31 +628,27 @@ function KnowledgeBasesPage() {
               </div>
 
               {createError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {createError}
                 </div>
               )}
 
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={handleCloseCreateModal}
                   disabled={creating}
-                  className="rounded-xl border border-[#D8DCD7] px-4 py-2.5 text-sm font-medium"
+                  className="w-full rounded-xl border border-[#D8DCD7] px-4 py-2.5 text-sm font-medium text-[#4B514D] sm:w-auto"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  disabled={
-                    creating || !name.trim()
-                  }
-                  className="rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                  disabled={creating || !name.trim()}
+                  className="w-full rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D] disabled:opacity-50 sm:w-auto"
                 >
-                  {creating
-                    ? "Creating..."
-                    : "Create Knowledge Base"}
+                  {creating ? "Creating..." : "Create Knowledge Base"}
                 </button>
               </div>
             </form>
@@ -754,19 +656,18 @@ function KnowledgeBasesPage() {
         </div>
       )}
 
-      {/* EDIT MODAL */}
+      {/* ================= EDIT MODAL ================= */}
 
       {knowledgeBaseToEdit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-[#DFE1DC] bg-white p-6 shadow-xl">
-
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 px-4 py-4 sm:items-center">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#DFE1DC] bg-white p-5 shadow-xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-[#202422]">
                   Edit Knowledge Base
                 </h2>
 
-                <p className="mt-1 text-sm text-[#707571]">
+                <p className="mt-1 text-sm leading-6 text-[#707571]">
                   Update the name or description.
                 </p>
               </div>
@@ -775,16 +676,15 @@ function KnowledgeBasesPage() {
                 type="button"
                 onClick={handleCloseEditModal}
                 disabled={updating}
-                className="rounded-lg p-2 text-[#707571] transition hover:bg-[#F3F4F1]"
+                aria-label="Close"
+                className="shrink-0 rounded-lg p-2 text-[#707571] transition hover:bg-[#F3F4F1]"
               >
                 <X size={19} />
               </button>
             </div>
 
             <form
-              onSubmit={
-                handleUpdateKnowledgeBase
-              }
+              onSubmit={handleUpdateKnowledgeBase}
               className="mt-6 space-y-5"
             >
               <div>
@@ -795,11 +695,7 @@ function KnowledgeBasesPage() {
                 <input
                   type="text"
                   value={editName}
-                  onChange={(event) =>
-                    setEditName(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setEditName(event.target.value)}
                   required
                   className="w-full rounded-xl border border-[#DCDDD8] bg-white px-4 py-3 text-sm outline-none focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
                 />
@@ -812,43 +708,34 @@ function KnowledgeBasesPage() {
 
                 <textarea
                   value={editDescription}
-                  onChange={(event) =>
-                    setEditDescription(
-                      event.target.value
-                    )
-                  }
+                  onChange={(event) => setEditDescription(event.target.value)}
                   rows={4}
                   className="w-full resize-none rounded-xl border border-[#DCDDD8] bg-white px-4 py-3 text-sm outline-none focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
                 />
               </div>
 
               {editError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {editError}
                 </div>
               )}
 
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={handleCloseEditModal}
                   disabled={updating}
-                  className="rounded-xl border border-[#D8DCD7] px-4 py-2.5 text-sm font-medium"
+                  className="w-full rounded-xl border border-[#D8DCD7] px-4 py-2.5 text-sm font-medium text-[#4B514D] sm:w-auto"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  disabled={
-                    updating ||
-                    !editName.trim()
-                  }
-                  className="rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                  disabled={updating || !editName.trim()}
+                  className="w-full rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D] disabled:opacity-50 sm:w-auto"
                 >
-                  {updating
-                    ? "Saving..."
-                    : "Save Changes"}
+                  {updating ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>
@@ -856,21 +743,32 @@ function KnowledgeBasesPage() {
         </div>
       )}
 
-      {/*DELETE MODAL*/}
+      {/* ================= DELETE MODAL ================= */}
 
       {knowledgeBaseToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-sm rounded-2xl border border-[#DFE1DC] bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 px-4 py-4 sm:items-center">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-sm overflow-y-auto rounded-2xl border border-[#DFE1DC] bg-white p-5 shadow-xl sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                <Trash2 size={20} />
+              </div>
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600">
-              <Trash2 size={20} />
+              <button
+                type="button"
+                onClick={handleCloseDeleteModal}
+                disabled={deleting}
+                aria-label="Close"
+                className="rounded-lg p-2 text-[#8A8F8B] transition hover:bg-[#F3F4F1]"
+              >
+                <X size={18} />
+              </button>
             </div>
 
             <h2 className="mt-4 text-lg font-semibold text-[#202422]">
               Delete knowledge base?
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-[#707571]">
+            <p className="mt-2 break-words text-sm leading-6 text-[#707571]">
               Are you sure you want to delete{" "}
               <span className="font-medium text-[#202422]">
                 {knowledgeBaseToDelete.name}
@@ -879,46 +777,40 @@ function KnowledgeBasesPage() {
             </p>
 
             <p className="mt-2 text-xs leading-5 text-[#8A8F8B]">
-              Knowledge bases containing documents
-              cannot be deleted until their documents
-              are removed.
+              Knowledge bases containing documents cannot be deleted until their
+              documents are removed.
             </p>
 
             {deleteError && (
-              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {deleteError}
               </div>
             )}
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={handleCloseDeleteModal}
                 disabled={deleting}
-                className="rounded-xl border border-[#D8DCD7] px-4 py-2.5 text-sm font-medium text-[#4B514D]"
+                className="w-full rounded-xl border border-[#D8DCD7] px-4 py-2.5 text-sm font-medium text-[#4B514D] sm:w-auto"
               >
                 Cancel
               </button>
 
               <button
                 type="button"
-                onClick={
-                  handleDeleteKnowledgeBase
-                }
+                onClick={handleDeleteKnowledgeBase}
                 disabled={deleting}
-                className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+                className="w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50 sm:w-auto"
               >
-                {deleting
-                  ? "Deleting..."
-                  : "Delete"}
+                {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
-  )
+  );
 }
 
-export default KnowledgeBasesPage
+export default KnowledgeBasesPage;

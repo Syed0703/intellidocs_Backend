@@ -1,83 +1,73 @@
-import { useEffect, useState } from "react"
-import { Outlet } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 
-import Sidebar from "./Sidebar"
-import Header from "./Header"
+import Sidebar from "./Sidebar";
+import Header from "./Header";
 
-import {
-  getOrganizations,
-  type Organization,
-} from "../api/organizations"
+import { getOrganizations, type Organization } from "../api/organizations";
+
+import { getCurrentUser, type CurrentUser } from "../api/auth";
 
 function AppLayout() {
-  const [organizations, setOrganizations] =
-    useState<Organization[]>([])
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
 
-  const [
-    selectedOrganization,
-    setSelectedOrganization,
-  ] = useState<Organization | null>(null)
+  const [selectedOrganization, setSelectedOrganization] =
+    useState<Organization | null>(null);
+
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const loadOrganizations = async () => {
+    const loadAppData = async () => {
       try {
-        const response = await getOrganizations()
+        const [organizationsResponse, currentUserResponse] = await Promise.all([
+          getOrganizations(),
+          getCurrentUser(),
+        ]);
 
-        if (!response.ok) {
-          console.error(
-            "Failed to load organizations"
-          )
-          return
+        if (organizationsResponse.ok) {
+          const data: Organization[] = await organizationsResponse.json();
+
+          setOrganizations(data);
+
+          if (data.length > 0) {
+            setSelectedOrganization(data[0]);
+          }
         }
 
-        const data: Organization[] =
-          await response.json()
+        if (currentUserResponse.ok) {
+          const user: CurrentUser = await currentUserResponse.json();
 
-        setOrganizations(data)
-
-        if (data.length > 0) {
-          setSelectedOrganization(data[0])
+          setCurrentUser(user);
         }
       } catch (error) {
-        console.error(
-          "Failed to load organizations:",
-          error
-        )
+        console.error("Failed to load application data:", error);
       }
-    }
+    };
 
-    loadOrganizations()
-  }, [])
+    loadAppData();
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F7F6F2]">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Sidebar stays fixed */}
-      <div className="h-screen shrink-0">
-        <Sidebar />
-      </div>
-
-      {/* Right side */}
       <div className="flex min-w-0 flex-1 flex-col">
-
         <Header
           organizations={organizations}
           selectedOrganization={selectedOrganization}
-          onOrganizationChange={
-            setSelectedOrganization
-          }
+          currentUser={currentUser}
+          onOrganizationChange={setSelectedOrganization}
+          onMenuClick={() => setSidebarOpen(true)}
         />
 
-        {/* Only page content scrolls */}
-        <main className="min-h-0 flex-1 overflow-y-auto">
-          <Outlet
-            context={selectedOrganization}
-          />
+        <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <Outlet context={selectedOrganization} />
         </main>
-
       </div>
     </div>
-  )
+  );
 }
 
-export default AppLayout
+export default AppLayout;

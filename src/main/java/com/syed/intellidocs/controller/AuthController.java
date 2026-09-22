@@ -76,6 +76,7 @@ public class AuthController {
                 new CurrentUserResponse();
 
         response.setUserId(userDetails.getUserId());
+        response.setName(userDetails.getName());
         response.setEmail(userDetails.getUsername());
 
         return response;

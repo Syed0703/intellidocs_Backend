@@ -1,6 +1,15 @@
 import { useState, type FormEvent } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
-import { FileText, Lock, Mail, Sparkles, User } from "lucide-react";
+
+import {
+  FileText,
+  LoaderCircle,
+  Lock,
+  Mail,
+  Sparkles,
+  User,
+} from "lucide-react";
 
 import { createUser } from "../api/users";
 
@@ -8,6 +17,7 @@ function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [error, setError] = useState("");
@@ -15,10 +25,29 @@ function SignupPage() {
 
   const navigate = useNavigate();
 
+  const clearError = () => {
+    if (error) {
+      setError("");
+    }
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
     setError("");
+
+    if (!trimmedName) {
+      setError("Please enter your name");
+      return;
+    }
+
+    if (!trimmedEmail) {
+      setError("Please enter your email");
+      return;
+    }
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters");
@@ -34,8 +63,8 @@ function SignupPage() {
 
     try {
       const response = await createUser({
-        name: name.trim(),
-        email: email.trim(),
+        name: trimmedName,
+        email: trimmedEmail,
         password,
       });
 
@@ -47,7 +76,9 @@ function SignupPage() {
         return;
       }
 
-      navigate("/login");
+      navigate("/login", {
+        replace: true,
+      });
     } catch {
       setError("Unable to connect to the server");
     } finally {
@@ -58,7 +89,7 @@ function SignupPage() {
   return (
     <div className="min-h-screen bg-[#F7F6F2]">
       <div className="flex min-h-screen">
-        {/* Left branding section */}
+        {/* Left Branding */}
         <div className="hidden w-[42%] max-w-[720px] flex-col justify-between bg-[#123C32] p-10 text-white lg:flex xl:p-12">
           {/* Brand */}
           <div className="flex items-center gap-3">
@@ -77,7 +108,7 @@ function SignupPage() {
             </div>
           </div>
 
-          {/* Main message */}
+          {/* Main Message */}
           <div className="max-w-md">
             <div className="mb-5 flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/80">
               <Sparkles size={15} />
@@ -101,10 +132,10 @@ function SignupPage() {
           <p className="text-sm text-white/40">IntelliDocs</p>
         </div>
 
-        {/* Signup section */}
+        {/* Signup Section */}
         <div className="flex flex-1 items-center justify-center px-6 py-6 sm:px-10 lg:h-screen xl:px-16">
           <div className="w-full max-w-[420px]">
-            {/* Mobile/tablet brand */}
+            {/* Mobile Brand */}
             <div className="mb-6 flex items-center gap-3 lg:hidden">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#123C32] text-white">
                 <FileText size={24} />
@@ -152,11 +183,15 @@ function SignupPage() {
                     id="name"
                     type="text"
                     value={name}
-                    onChange={(event) => setName(event.target.value)}
+                    onChange={(event) => {
+                      setName(event.target.value);
+                      clearError();
+                    }}
                     placeholder="Your name"
                     autoComplete="name"
                     required
-                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
+                    disabled={loading}
+                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10 disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -180,11 +215,15 @@ function SignupPage() {
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      clearError();
+                    }}
                     placeholder="you@company.com"
                     autoComplete="email"
                     required
-                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
+                    disabled={loading}
+                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10 disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -208,12 +247,16 @@ function SignupPage() {
                     id="password"
                     type="password"
                     value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      clearError();
+                    }}
                     placeholder="Minimum 8 characters"
                     autoComplete="new-password"
                     required
                     minLength={8}
-                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
+                    disabled={loading}
+                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10 disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -237,18 +280,22 @@ function SignupPage() {
                     id="confirm-password"
                     type="password"
                     value={confirmPassword}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    onChange={(event) => {
+                      setConfirmPassword(event.target.value);
+                      clearError();
+                    }}
                     placeholder="Enter your password again"
                     autoComplete="new-password"
                     required
-                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
+                    disabled={loading}
+                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-2.5 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10 disabled:opacity-60"
                   />
                 </div>
               </div>
 
               {/* Error */}
               {error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
                   {error}
                 </div>
               )}
@@ -256,14 +303,22 @@ function SignupPage() {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={
+                  loading ||
+                  !name.trim() ||
+                  !email.trim() ||
+                  !password ||
+                  !confirmPassword
+                }
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#285C4D] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1F493D] disabled:cursor-not-allowed disabled:opacity-60"
               >
+                {loading && <LoaderCircle size={17} className="animate-spin" />}
+
                 {loading ? "Creating account..." : "Create account"}
               </button>
             </form>
 
-            {/* Login link */}
+            {/* Login */}
             <p className="mt-5 text-center text-sm text-[#707571]">
               Already have an account?{" "}
               <Link

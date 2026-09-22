@@ -8,5 +8,6 @@ import lombok.Setter;
 public class CurrentUserResponse {
 
     private Long userId;
+    private String name;
     private String email;
 }

@@ -25,7 +25,7 @@ public class DocumentService {
     private final OrganizationAccessService organizationAccessService;
     private final FileStorageService fileStorageService;
     private final DocumentProcessingService documentProcessingService;
-    private DocumentChunkRepository documentChunkRepository;
+    private final DocumentChunkRepository documentChunkRepository;
 
     public DocumentService(
             DocumentRepository documentRepository,

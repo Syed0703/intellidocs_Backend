@@ -1,7 +1,10 @@
 import { useState, type FormEvent } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
-import { FileText, Lock, Mail, Sparkles } from "lucide-react";
-import { getCurrentUser, login } from "../api/auth";
+
+import { FileText, LoaderCircle, Lock, Mail, Sparkles } from "lucide-react";
+
+import { login } from "../api/auth";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,29 +17,24 @@ function LoginPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!email.trim() || !password) {
+      return;
+    }
+
     setError("");
     setLoading(true);
 
     try {
-      const loginResponse = await login(email, password);
+      const response = await login(email.trim(), password);
 
-      if (!loginResponse.ok) {
+      if (!response.ok) {
         setError("Invalid email or password");
         return;
       }
 
-      const userResponse = await getCurrentUser();
-
-      if (!userResponse.ok) {
-        setError("Unable to verify your account");
-        return;
-      }
-
-      const user = await userResponse.json();
-
-      console.log("Logged in user:", user);
-
-      navigate("/ask");
+      navigate("/ask", {
+        replace: true,
+      });
     } catch {
       setError("Unable to connect to the server");
     } finally {
@@ -47,7 +45,7 @@ function LoginPage() {
   return (
     <div className="min-h-screen bg-[#F7F6F2]">
       <div className="flex min-h-screen">
-        {/* Left branding section */}
+        {/* Left Branding */}
         <div className="hidden w-[42%] max-w-[720px] flex-col justify-between bg-[#123C32] p-10 text-white lg:flex xl:p-12">
           {/* Brand */}
           <div className="flex items-center gap-3">
@@ -66,7 +64,7 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Main message */}
+          {/* Main Message */}
           <div className="max-w-md">
             <div className="mb-5 flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/80">
               <Sparkles size={15} />
@@ -87,10 +85,10 @@ function LoginPage() {
           <p className="text-sm text-white/40">IntelliDocs</p>
         </div>
 
-        {/* Login section */}
+        {/* Login Section */}
         <div className="flex flex-1 items-center justify-center px-6 py-12 sm:px-10 xl:px-16">
           <div className="w-full max-w-[420px]">
-            {/* Mobile/tablet brand */}
+            {/* Mobile Brand */}
             <div className="mb-10 flex items-center gap-3 lg:hidden">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#123C32] text-white">
                 <FileText size={24} />
@@ -137,11 +135,18 @@ function LoginPage() {
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+
+                      if (error) {
+                        setError("");
+                      }
+                    }}
                     placeholder="you@company.com"
                     autoComplete="email"
                     required
-                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-3 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
+                    disabled={loading}
+                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-3 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10 disabled:opacity-60"
                   />
                 </div>
               </div>
@@ -165,18 +170,25 @@ function LoginPage() {
                     id="password"
                     type="password"
                     value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+
+                      if (error) {
+                        setError("");
+                      }
+                    }}
                     placeholder="Enter your password"
                     autoComplete="current-password"
                     required
-                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-3 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10"
+                    disabled={loading}
+                    className="w-full rounded-xl border border-[#DCDDD8] bg-white py-3 pl-11 pr-4 text-sm text-[#202422] outline-none transition placeholder:text-[#A3A6A4] focus:border-[#285C4D] focus:ring-2 focus:ring-[#285C4D]/10 disabled:opacity-60"
                   />
                 </div>
               </div>
 
               {/* Error */}
               {error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error}
                 </div>
               )}
@@ -184,13 +196,16 @@ function LoginPage() {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-[#285C4D] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1F493D] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={loading || !email.trim() || !password}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#285C4D] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#1F493D] disabled:cursor-not-allowed disabled:opacity-60"
               >
+                {loading && <LoaderCircle size={17} className="animate-spin" />}
+
                 {loading ? "Signing in..." : "Sign in"}
               </button>
             </form>
 
+            {/* Signup */}
             <p className="mt-7 text-center text-sm text-[#707571]">
               Don&apos;t have an account?{" "}
               <Link
