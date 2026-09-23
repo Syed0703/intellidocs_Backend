@@ -1,47 +1,32 @@
+import { apiFetch } from "./apiClient";
+
 export type CurrentUser = {
-  userId: number
-  name: string
-  email: string
-}
+  userId: number;
+  name: string;
+  email: string;
+};
+
 export async function login(email: string, password: string) {
-  const response = await fetch(
-    "http://localhost:8080/api/auth/login",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    }
-  )
-
-  return response
+  return apiFetch("/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
 }
-
 
 export async function getCurrentUser() {
-  const response = await fetch(
-    "http://localhost:8080/api/auth/me",
-    {
-      method: "GET",
-      credentials: "include",
-    }
-  )
-
-  return response
+  return apiFetch("/api/auth/me", {
+    method: "GET",
+  });
 }
 
 export async function logout() {
-    const response = await fetch(
-        "http://localhost:8080/api/auth/logout",
-        {
-            method: "POST",
-            credentials: "include",
-        }
-    )
-    return response;
+  return apiFetch("/api/auth/logout", {
+    method: "POST",
+  });
 }

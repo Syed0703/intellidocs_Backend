@@ -13,15 +13,25 @@ import org.springframework.web.bind.annotation.*;
 import com.syed.intellidocs.dto.response.CurrentUserResponse;
 import com.syed.intellidocs.security.CustomUserDetails;
 import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.web.csrf.CsrfToken;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
+    private final boolean cookieSecure;
+    private final String cookieSameSite;
 
-    public AuthController(AuthService authService) {
+    public AuthController(
+            AuthService authService,
+            @Value("${app.cookie.secure}") boolean cookieSecure,
+            @Value("${app.cookie.same-site}") String cookieSameSite
+    ) {
         this.authService = authService;
+        this.cookieSecure = cookieSecure;
+        this.cookieSameSite = cookieSameSite;
     }
 
     @PostMapping("/login")
@@ -33,8 +43,8 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("access_token", authResult.getToken())
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Strict")
+                .secure(cookieSecure)
+                .sameSite(cookieSameSite)
                 .path("/")
                 .maxAge(30 * 60)
                 .build();
@@ -52,8 +62,8 @@ public class AuthController {
     public void logout(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from("access_token", "")
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Strict")
+                .secure(cookieSecure)
+                .sameSite(cookieSameSite)
                 .path("/")
                 .maxAge(0)
                 .build();
@@ -80,5 +90,10 @@ public class AuthController {
         response.setEmail(userDetails.getUsername());
 
         return response;
+    }
+
+    @GetMapping("/csrf")
+    public CsrfToken csrf(CsrfToken csrfToken) {
+        return csrfToken;
     }
 }

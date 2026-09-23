@@ -1,3 +1,5 @@
+import { apiFetch } from "./apiClient";
+
 export type CreateUserRequest = {
   name: string;
   email: string;
@@ -7,13 +9,11 @@ export type CreateUserRequest = {
 export async function createUser(
   request: CreateUserRequest,
 ): Promise<Response> {
-  const resposne = fetch("http://localhost:8080/api/users", {
+  return apiFetch("/api/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include",
     body: JSON.stringify(request),
   });
-  return resposne;
 }
