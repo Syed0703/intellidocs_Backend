@@ -89,7 +89,7 @@ public class KnowledgeBaseService {
                 .findByKnowledgeBaseIdAndOrganizationOrganizationId(
                         knowledgeBaseId,
                         organizationId
-                ).orElseThrow(()-> new KnowledgeBaseAlreadyExistsException());
+                ).orElseThrow(()-> new KnowledgeBaseNotFoundException());
 
         String newName = request.getName().trim();
 
