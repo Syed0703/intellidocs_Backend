@@ -2,6 +2,7 @@ package com.syed.intellidocs.service;
 
 import com.syed.intellidocs.exception.FileStorageException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,42 +13,87 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
-public class FileStorageService {
+@Profile("!prod")
+public class FileStorageService
+        implements DocumentStorageService {
+
     private final Path uploadRoot;
 
-    public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
-        this.uploadRoot = Paths.get(uploadDir);
+    public FileStorageService(
+            @Value("${file.upload-dir}")
+            String uploadDir
+    ) {
+        this.uploadRoot = Paths
+                .get(uploadDir)
+                .toAbsolutePath()
+                .normalize();
     }
+
+    @Override
     public String store(
             MultipartFile file,
             Long organizationId,
             Long knowledgeBaseId
     ) {
-        String storedFileName = UUID.randomUUID() + ".pdf";
+
+        String storedFileName =
+                UUID.randomUUID() + ".pdf";
+
         Path directory = uploadRoot
                 .resolve("organizations")
                 .resolve(organizationId.toString())
                 .resolve("knowledge-bases")
-                .resolve(knowledgeBaseId.toString());
+                .resolve(knowledgeBaseId.toString())
+                .normalize();
+
         try {
             Files.createDirectories(directory);
 
-            Path destination = directory.resolve(storedFileName);
+            Path destination =
+                    directory.resolve(storedFileName)
+                            .normalize();
 
             file.transferTo(destination);
 
-            return uploadRoot.relativize(destination).toString();
+            return uploadRoot
+                    .relativize(destination)
+                    .toString()
+                    .replace("\\", "/");
 
-        } catch (IOException e) {
-            throw new FileStorageException("Failed to store uploaded document", e);
+        } catch (IOException ex) {
+            throw new FileStorageException(
+                    "Failed to store uploaded document",
+                    ex
+            );
         }
     }
 
+    @Override
+    public byte[] load(String storageKey) {
+
+        Path filePath =
+                resolveStoragePath(storageKey);
+
+        try {
+            return Files.readAllBytes(filePath);
+
+        } catch (IOException ex) {
+            throw new FileStorageException(
+                    "Failed to load stored document",
+                    ex
+            );
+        }
+    }
+
+    @Override
     public void delete(String storageKey) {
-        Path filePath = uploadRoot.resolve(storageKey);
+
+        Path filePath =
+                resolveStoragePath(storageKey);
 
         try {
             Files.deleteIfExists(filePath);
+
         } catch (IOException ex) {
             throw new FileStorageException(
                     "Failed to delete stored document",
@@ -56,7 +102,20 @@ public class FileStorageService {
         }
     }
 
-    public Path getPath(String storageKey) {
-        return uploadRoot.resolve(storageKey);
+    private Path resolveStoragePath(
+            String storageKey
+    ) {
+
+        Path resolved = uploadRoot
+                .resolve(storageKey)
+                .normalize();
+
+        if (!resolved.startsWith(uploadRoot)) {
+            throw new FileStorageException(
+                    "Invalid storage path"
+            );
+        }
+
+        return resolved;
     }
 }

@@ -7,19 +7,29 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 @Service
 public class PdfTextExtractorService {
 
-    public String extractText(Path pdfPath) {
-        try(PDDocument document = Loader.loadPDF(pdfPath.toFile())){
+    public String extractText(byte[] pdfBytes) {
 
-            PDFTextStripper textStripper = new PDFTextStripper();
-            return textStripper.getText(document);
-        } catch (IOException e) {
-            throw new PdfProcessingException("Failed to extract text from PDF", e);
+        try (
+                PDDocument document =
+                        Loader.loadPDF(pdfBytes)
+        ) {
+
+            PDFTextStripper textStripper =
+                    new PDFTextStripper();
+
+            return textStripper.getText(
+                    document
+            );
+
+        } catch (IOException ex) {
+            throw new PdfProcessingException(
+                    "Failed to extract text from PDF",
+                    ex
+            );
         }
-
     }
 }

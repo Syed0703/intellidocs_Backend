@@ -12,13 +12,12 @@ import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Path;
 import java.util.List;
 
 @Service
 public class DocumentProcessingService {
     private final DocumentRepository documentRepository;
-    private final FileStorageService fileStorageService;
+    private final DocumentStorageService documentStorageService;
     private final PdfTextExtractorService pdfTextExtractorService;
     private final DocumentChunkService documentChunkService;
     private final DocumentChunkRepository documentChunkRepository;
@@ -26,14 +25,14 @@ public class DocumentProcessingService {
 
     public DocumentProcessingService(
             DocumentRepository documentRepository,
-            FileStorageService fileStorageService,
+            DocumentStorageService documentStorageService,
             PdfTextExtractorService pdfTextExtractorService,
             DocumentChunkService documentChunkService,
             DocumentChunkRepository documentChunkRepository,
             EmbeddingModel embeddingModel
     ) {
         this.documentRepository = documentRepository;
-        this.fileStorageService = fileStorageService;
+        this.documentStorageService = documentStorageService;
         this.pdfTextExtractorService = pdfTextExtractorService;
         this.documentChunkService = documentChunkService;
         this.documentChunkRepository = documentChunkRepository;
@@ -59,11 +58,15 @@ public class DocumentProcessingService {
         }
 
         try {
-            Path pdfPath =
-                    fileStorageService.getPath(document.getStorageKey());
+            byte[] pdfBytes =
+                    documentStorageService.load(
+                            document.getStorageKey()
+                    );
 
             String extractedText =
-                    pdfTextExtractorService.extractText(pdfPath);
+                    pdfTextExtractorService.extractText(
+                            pdfBytes
+                    );
 
             if(extractedText == null || extractedText.isBlank()) {
                 throw new PdfProcessingException("No Extractable text found in pdf");

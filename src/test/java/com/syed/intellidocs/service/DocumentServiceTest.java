@@ -47,7 +47,7 @@ class DocumentServiceTest {
     private OrganizationAccessService organizationAccessService;
 
     @Mock
-    private FileStorageService fileStorageService;
+    private DocumentStorageService documentStorageService;
 
     @Mock
     private DocumentProcessingService documentProcessingService;
@@ -86,7 +86,7 @@ class DocumentServiceTest {
         ).thenReturn(false);
 
         when(
-                fileStorageService.store(
+                documentStorageService.store(
                         file,
                         ORGANIZATION_ID,
                         KNOWLEDGE_BASE_ID
@@ -178,7 +178,7 @@ class DocumentServiceTest {
                                 )
         );
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .store(
                         any(),
                         anyLong(),
@@ -221,7 +221,7 @@ class DocumentServiceTest {
                                 )
         );
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .store(
                         any(),
                         anyLong(),
@@ -264,7 +264,7 @@ class DocumentServiceTest {
                                 )
         );
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .store(
                         any(),
                         anyLong(),
@@ -307,7 +307,7 @@ class DocumentServiceTest {
                                 )
         );
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .store(
                         any(),
                         anyLong(),
@@ -353,7 +353,7 @@ class DocumentServiceTest {
                                 )
         );
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .store(
                         any(),
                         anyLong(),
@@ -408,7 +408,7 @@ class DocumentServiceTest {
                                 )
         );
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .store(
                         any(),
                         anyLong(),
@@ -584,7 +584,7 @@ class DocumentServiceTest {
         verify(documentRepository)
                 .delete(document);
 
-        verify(fileStorageService)
+        verify(documentStorageService)
                 .delete(
                         document.getStorageKey()
                 );
@@ -628,7 +628,7 @@ class DocumentServiceTest {
         verify(documentRepository, never())
                 .delete(any());
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .delete(any());
     }
 
@@ -660,7 +660,7 @@ class DocumentServiceTest {
         verify(documentRepository, never())
                 .delete(any());
 
-        verify(fileStorageService, never())
+        verify(documentStorageService, never())
                 .delete(any());
     }
 

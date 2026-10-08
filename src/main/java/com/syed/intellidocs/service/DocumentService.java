@@ -23,7 +23,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final KnowledgeBaseRepository knowledgeBaseRepository;
     private final OrganizationAccessService organizationAccessService;
-    private final FileStorageService fileStorageService;
+    private final DocumentStorageService documentStorageService;
     private final DocumentProcessingService documentProcessingService;
     private final DocumentChunkRepository documentChunkRepository;
 
@@ -31,14 +31,14 @@ public class DocumentService {
             DocumentRepository documentRepository,
             KnowledgeBaseRepository knowledgeBaseRepository,
             OrganizationAccessService organizationAccessService,
-            FileStorageService fileStorageService,
+            DocumentStorageService documentStorageService,
             DocumentProcessingService documentProcessingService,
             DocumentChunkRepository documentChunkRepository
     ) {
         this.documentRepository = documentRepository;
         this.knowledgeBaseRepository = knowledgeBaseRepository;
         this.organizationAccessService = organizationAccessService;
-        this.fileStorageService = fileStorageService;
+        this.documentStorageService = documentStorageService;
         this.documentProcessingService = documentProcessingService;
         this.documentChunkRepository = documentChunkRepository;
     }
@@ -77,7 +77,7 @@ public class DocumentService {
             throw new DocumentAlreadyExistsException();
         }
 
-        String storageKey = fileStorageService.store(file, organizationId, knowledgeBaseId);
+        String storageKey = documentStorageService.store(file, organizationId, knowledgeBaseId);
 
         Document document = new Document();
         document.setOriginalFileName(file.getOriginalFilename());
@@ -159,7 +159,7 @@ public class DocumentService {
 
         documentRepository.delete(document);
 
-        fileStorageService.delete(document.getStorageKey());
+        documentStorageService.delete(document.getStorageKey());
     }
 
     private static DocumentResponse getDocumentResponse(Document savedDocument) {

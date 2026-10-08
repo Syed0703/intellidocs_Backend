@@ -1,7 +1,15 @@
 package com.syed.intellidocs.exception;
 
-public class FileStorageException extends RuntimeException{
-    public FileStorageException(String message, Throwable cause) {
+public class FileStorageException extends RuntimeException {
+
+    public FileStorageException(String message) {
+        super(message);
+    }
+
+    public FileStorageException(
+            String message,
+            Throwable cause
+    ) {
         super(message, cause);
     }
 }

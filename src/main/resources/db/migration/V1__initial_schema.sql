@@ -22,7 +22,9 @@ SET row_security = off;
 -- Name: vector; Type: EXTENSION; Schema: -; Owner: -
 --
 
-CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+CREATE SCHEMA IF NOT EXISTS extensions;
+
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 
 
 SET default_tablespace = '';
@@ -57,7 +59,7 @@ CREATE TABLE public.document_chunk (
     content text NOT NULL,
     created_at timestamp(6) without time zone,
     document_id bigint NOT NULL,
-    embedding public.vector(768)
+    embedding extensions.vector(768)
 );
 
 
