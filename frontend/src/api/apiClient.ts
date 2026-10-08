@@ -8,13 +8,7 @@ type CsrfResponse = {
   parameterName: string;
 };
 
-let csrfToken: string | null = null;
-
 async function getCsrfToken(): Promise<string> {
-  if (csrfToken) {
-    return csrfToken;
-  }
-
   const response = await fetch(`${API_BASE_URL}/api/auth/csrf`, {
     method: "GET",
     credentials: "include",
@@ -26,9 +20,7 @@ async function getCsrfToken(): Promise<string> {
 
   const data: CsrfResponse = await response.json();
 
-  csrfToken = data.token;
-
-  return csrfToken;
+  return data.token;
 }
 
 function requiresCsrf(method: string) {
@@ -45,23 +37,13 @@ export async function apiFetch(
 
   if (requiresCsrf(method)) {
     const token = await getCsrfToken();
-
     headers.set("X-XSRF-TOKEN", token);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  return fetch(`${API_BASE_URL}${path}`, {
     ...options,
     method,
     headers,
     credentials: "include",
   });
-
-  // Login/logout may cause the server-side
-  // CSRF state to change. Force a fresh token
-  // for the next modifying request.
-  if (path === "/api/auth/login" || path === "/api/auth/logout") {
-    csrfToken = null;
-  }
-
-  return response;
 }

@@ -1,11 +1,11 @@
 package com.syed.intellidocs.service;
 
 import com.syed.intellidocs.dto.response.SearchResultResponse;
-import com.syed.intellidocs.entity.DocumentChunk;
 import com.syed.intellidocs.repository.DocumentChunkRepository;
 import com.syed.intellidocs.repository.projection.SearchResultProjection;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +15,21 @@ public class SemanticSearchService {
     private final EmbeddingModel embeddingModel;
     private final DocumentChunkRepository documentChunkRepository;
     private final OrganizationAccessService organizationAccessService;
+    private final double maxDistance;
+    private final int topK;
 
     public SemanticSearchService(
             EmbeddingModel embeddingModel,
             DocumentChunkRepository documentChunkRepository,
-            OrganizationAccessService organizationAccessService
+            OrganizationAccessService organizationAccessService,
+            @Value("${rag.max-distance}") double maxDistance,
+            @Value("${rag.top-k}") int topK
     ) {
         this.embeddingModel = embeddingModel;
         this.documentChunkRepository = documentChunkRepository;
         this.organizationAccessService = organizationAccessService;
+        this.maxDistance = maxDistance;
+        this.topK = topK;
     }
 
     public List<SearchResultResponse> search(Long organizationId, String question) {
@@ -38,8 +44,8 @@ public class SemanticSearchService {
                 documentChunkRepository.findSimilarChunks(
                         organizationId,
                         vector,
-                        0.43,
-                        3
+                        maxDistance,
+                        topK
                 );
 
         List<SearchResultResponse> responses = new ArrayList<>();
