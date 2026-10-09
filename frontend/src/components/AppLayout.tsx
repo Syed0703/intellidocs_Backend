@@ -4,7 +4,11 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-import { getOrganizations, type Organization } from "../api/organizations";
+import {
+  createOrganization,
+  getOrganizations,
+  type Organization,
+} from "../api/organizations";
 
 import { getCurrentUser, type CurrentUser } from "../api/auth";
 
@@ -49,6 +53,24 @@ function AppLayout() {
     loadAppData();
   }, []);
 
+  const handleCreateOrganization = async (organizationName: string) => {
+    const response = await createOrganization({
+      organizationName,
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+
+      throw new Error(data?.message || "Unable to create organization");
+    }
+
+    const newOrganization: Organization = await response.json();
+
+    setOrganizations((current) => [...current, newOrganization]);
+
+    setSelectedOrganization(newOrganization);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#F7F6F2]">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -59,6 +81,7 @@ function AppLayout() {
           selectedOrganization={selectedOrganization}
           currentUser={currentUser}
           onOrganizationChange={setSelectedOrganization}
+          onCreateOrganization={handleCreateOrganization}
           onMenuClick={() => setSidebarOpen(true)}
         />
 
